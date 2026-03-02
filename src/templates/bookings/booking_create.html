@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Book {{ listing.title }} — TasteLocal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card p-4 mt-3">
+      <h1 class="h3 mb-3">Book: {{ listing.title }}</h1>
+
+      <ul class="list-unstyled text-secondary mb-4">
+        <li><strong>Vendor:</strong> {{ listing.vendor.name }}</li>
+        <li><strong>Price:</strong> ${{ listing.price }}</li>
+        <li><strong>Max capacity:</strong> {{ listing.max_capacity }}</li>
+        <li><strong>Duration:</strong> {{ listing.duration }} minutes</li>
+      </ul>
+
+      {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+          <ul class="mb-0 ps-3">
+            {% for field in form %}
+              {% for error in field.errors %}
+                <li>{{ field.label }}: {{ error }}</li>
+              {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary w-100 mt-2">Confirm Booking</button>
+      </form>
+
+      <p class="mt-3 mb-0">
+        <a href="{% url 'tourist_bookings' %}">Back to My Bookings</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

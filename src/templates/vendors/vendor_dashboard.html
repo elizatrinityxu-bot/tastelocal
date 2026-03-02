@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Vendor Dashboard — TasteLocal{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Vendor Dashboard</h1>
+<p class="text-secondary">Welcome, {{ vendor.name }}.</p>
+
+<div class="card p-3 mt-3">
+  <h2 class="h5 mb-3">Quick Links</h2>
+  <ul class="list-unstyled mb-0">
+    <li class="mb-2"><a href="#">My Listings</a></li>
+    <li class="mb-2"><a href="{% url 'vendor_bookings' %}">Bookings</a></li>
+    <li><a href="#">Reviews</a></li>
+  </ul>
+</div>
+{% endblock %}

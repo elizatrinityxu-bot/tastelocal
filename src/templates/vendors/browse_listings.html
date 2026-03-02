@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  {% if active_cuisine %}{{ active_cuisine|capfirst }} Experiences{% else %}All Experiences{% endif %} — TasteLocal
+{% endblock %}
+
+{% block content %}
+<h1 class="mb-1">
+  {% if active_cuisine %}
+    {% for value, label in cuisine_types %}{% if value == active_cuisine %}{{ label }}{% endif %}{% endfor %}
+    Experiences
+  {% else %}
+    All Experiences
+  {% endif %}
+</h1>
+<p class="text-secondary mb-4">
+  {{ listings|length }} experience{{ listings|length|pluralize }} available
+</p>
+
+<!-- Filters --------------------------------------------------------------- -->
+<div class="card p-3 mb-4">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-12 col-md-5">
+      <label class="form-label mb-1 small">Search</label>
+      <input type="text" name="q" value="{{ keyword }}"
+             placeholder="e.g. hawker, cooking class..."
+             class="form-control form-control-sm">
+    </div>
+    <div class="col-12 col-md-5">
+      <label class="form-label mb-1 small">Cuisine</label>
+      <select name="cuisine" class="form-control form-control-sm">
+        <option value="">All cuisines</option>
+        {% for value, label in cuisine_types %}
+          <option value="{{ value }}" {% if value == active_cuisine %}selected{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-12 col-md-2">
+      <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+    </div>
+  </form>
+</div>
+
+<!-- Cuisine pill shortcuts ------------------------------------------------- -->
+<div class="d-flex flex-wrap gap-2 mb-4">
+  <a href="{% url 'browse_listings' %}"
+     class="btn btn-sm {% if not active_cuisine %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
+    All
+  </a>
+  {% for value, label in cuisine_types %}
+    <a href="{% url 'browse_listings' %}?cuisine={{ value }}"
+       class="btn btn-sm {% if value == active_cuisine %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
+      {{ label }}
+    </a>
+  {% endfor %}
+</div>
+
+<!-- Results --------------------------------------------------------------- -->
+{% if listings %}
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for listing in listings %}
+      <div class="col">
+        <div class="card h-100 position-relative">
+
+          <!-- Card image -->
+          {% with img=listing.images.all|first %}
+            {% if img %}
+              <img src="{% static img.image.name %}"
+                   class="listing-card-img"
+                   alt="{{ listing.title }}">
+            {% else %}
+              <div class="listing-card-placeholder"></div>
+            {% endif %}
+          {% endwith %}
+
+          <div class="card-body d-flex flex-column">
+            <span class="badge mb-2 d-inline-block"
+                  style="background:var(--accent); color:var(--text-primary); font-size:.75rem;">
+              {{ listing.get_cuisine_type_display }}
+            </span>
+            <h2 class="h6 card-title mb-1">{{ listing.title }}</h2>
+            <p class="text-secondary small mb-3" style="flex:1;">
+              {{ listing.vendor.name }}
+            </p>
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <span class="fw-bold" style="color:var(--primary);">
+                  ${{ listing.price }}
+                </span>
+                <span class="text-secondary small"> / person</span>
+              </div>
+              <span class="text-secondary small">{{ listing.duration }} min</span>
+            </div>
+          </div>
+          <!-- Stretched link — whole card navigates to detail page -->
+          <a href="{% url 'listing_detail' listing.id %}"
+             class="stretched-link"
+             aria-label="View {{ listing.title }}"></a>
+
+          <!-- CTA — position:relative lifts buttons above the stretched-link overlay -->
+          <div class="card-footer bg-transparent border-0 pb-3"
+               style="position: relative; z-index: 2;">
+            {% if user.is_authenticated %}
+              <a href="{% url 'booking_create' listing.id %}"
+                 class="btn btn-primary btn-sm w-100">Book Now</a>
+            {% else %}
+              <a href="{% url 'listing_detail' listing.id %}"
+                 class="btn btn-primary btn-sm w-100">View Details</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="text-center py-5">
+    <p class="text-secondary">No experiences found. Try a different filter.</p>
+    <a href="{% url 'browse_listings' %}" class="btn btn-secondary btn-sm">Clear filters</a>
+  </div>
+{% endif %}
+{% endblock %}

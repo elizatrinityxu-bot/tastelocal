@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Application Pending — TasteLocal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card p-4 mt-3 text-center">
+      <h1 class="h3 mb-3">Application Pending</h1>
+
+      <div class="alert alert-warning" role="alert">
+        <strong>Vendor application pending approval.</strong>
+      </div>
+
+      <p class="text-secondary">
+        Our team will review your details. Once your application is approved and your
+        account is activated, you will be able to access the Vendor Dashboard.
+      </p>
+      <p class="text-secondary">No further action is required from you at this time.</p>
+
+      <div class="d-flex justify-content-center gap-3 mt-3">
+        <a href="{% url 'tourist_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

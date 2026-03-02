@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Bookings — {{ vendor.name }} — TasteLocal{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Bookings for {{ vendor.name }}</h1>
+
+{% if bookings %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Listing</th>
+          <th>Tourist</th>
+          <th>Date</th>
+          <th>Party Size</th>
+          <th>Status</th>
+          <th>Notes</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for booking in bookings %}
+          <tr>
+            <td>{{ booking.id }}</td>
+            <td>{{ booking.listing.title }}</td>
+            <td>{{ booking.tourist.username }}</td>
+            <td>{{ booking.booking_date }}</td>
+            <td>{{ booking.party_size }}</td>
+            <td>{{ booking.get_status_display }}</td>
+            <td>{{ booking.notes|default:"—" }}</td>
+            <td>
+              {% if booking.status == "PENDING" %}
+                <form method="post" action="{% url 'booking_update_status' booking.id %}" style="display:inline">
+                  {% csrf_token %}
+                  <input type="hidden" name="status" value="CONFIRMED">
+                  <button type="submit" class="btn btn-primary btn-sm">Confirm</button>
+                </form>
+                <form method="post" action="{% url 'booking_update_status' booking.id %}" style="display:inline">
+                  {% csrf_token %}
+                  <input type="hidden" name="status" value="CANCELLED">
+                  <button type="submit" class="btn btn-secondary btn-sm">Cancel</button>
+                </form>
+              {% elif booking.status == "CONFIRMED" %}
+                <form method="post" action="{% url 'booking_update_status' booking.id %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="status" value="COMPLETED">
+                  <button type="submit" class="btn btn-primary btn-sm">Mark Completed</button>
+                </form>
+              {% else %}
+                —
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <p class="text-secondary">No bookings for your listings yet.</p>
+{% endif %}
+
+<p class="mt-3"><a href="{% url 'vendor_dashboard' %}">Back to Dashboard</a></p>
+{% endblock %}

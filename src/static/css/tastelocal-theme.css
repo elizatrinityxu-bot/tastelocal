@@ -1,0 +1,461 @@
+/* =============================================================
+   TasteLocal Brand Theme — visual override layer for Bootstrap
+   ============================================================= */
+
+/* ── Design Tokens ──────────────────────────────────────────── */
+:root {
+  --primary:        #E76F51;
+  --secondary:      #2A9D8F;
+  --accent:         #E9C46A;
+  --background:     #F4F1EE;
+  --text-primary:   #2E2E2E;
+  --text-secondary: #6C757D;
+  --success:        #4CAF50;
+  --error:          #D9534F;
+
+  --primary-hover:   #D5664B;
+  --secondary-hover: #279084;
+}
+
+/* ── Base ───────────────────────────────────────────────────── */
+body {
+  background-color: var(--background);
+  font-family: 'Inter', sans-serif;
+  color: var(--text-primary);
+}
+
+/* ── Typography ─────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+}
+
+/* ── Buttons ────────────────────────────────────────────────── */
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  border-radius: 6px;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+  color: #ffffff;
+}
+
+.btn-primary:focus,
+.btn-primary:active {
+  box-shadow: 0 0 0 0.25rem rgba(231, 111, 81, 0.35);
+}
+
+/* Restore compact size for explicitly small primary buttons */
+.btn-sm.btn-primary,
+.btn-primary.btn-sm {
+  padding: 0.3rem 0.85rem;
+  font-size: 0.875rem;
+}
+
+.btn-secondary {
+  background-color: var(--secondary);
+  border-color: var(--secondary);
+  color: #ffffff;
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus,
+.btn-secondary:active {
+  background-color: var(--secondary-hover);
+  border-color: var(--secondary-hover);
+  color: #ffffff;
+}
+
+.btn-secondary:focus,
+.btn-secondary:active {
+  box-shadow: 0 0 0 0.25rem rgba(42, 157, 143, 0.35);
+}
+
+/* ── Cards ──────────────────────────────────────────────────── */
+.card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card .card-body {
+  padding: 1.25rem;
+}
+
+/* ── Navigation ─────────────────────────────────────────────── */
+.nav-link.active,
+.navbar-nav .nav-link.active {
+  color: var(--secondary) !important;
+  font-weight: 600;
+}
+
+/* Remove Bootstrap's single colour on the brand link so child
+   spans can each carry their own brand colour. */
+.navbar-brand {
+  color: inherit !important;
+  text-decoration: none;
+}
+
+.navbar-brand:hover {
+  text-decoration: none;
+}
+
+.brand-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-icon {
+  height: 22px;
+  width: 22px;
+  color: var(--primary);
+  flex-shrink: 0;
+  transition: opacity 0.15s ease;
+}
+
+.brand-logo {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.navbar-brand:hover .brand-icon,
+.navbar-brand:hover .brand-logo {
+  opacity: 0.85;
+}
+
+.brand-taste {
+  color: var(--primary);
+}
+
+.brand-local {
+  color: var(--secondary);
+}
+
+.navbar-nav .nav-link {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.navbar-nav .nav-link:hover {
+  color: var(--secondary);
+}
+
+/* ── Alerts ─────────────────────────────────────────────────── */
+.alert-success {
+  background-color: var(--success);
+  color: #ffffff;
+  border: none;
+}
+
+.alert-danger {
+  background-color: var(--error);
+  color: #ffffff;
+  border: none;
+}
+
+.alert-success .btn-close,
+.alert-danger .btn-close {
+  filter: invert(1) grayscale(1);
+}
+
+/* ── Form controls (for Django's form.as_p output) ──────────── */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="url"],
+select,
+textarea {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-primary);
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  margin-bottom: 0.75rem;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="url"]:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--secondary);
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(42, 157, 143, 0.2);
+}
+
+/* ── Tables ─────────────────────────────────────────────────── */
+.table thead th {
+  background-color: var(--secondary);
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  border-color: var(--secondary);
+}
+
+/* ── Links ──────────────────────────────────────────────────── */
+a {
+  color: var(--secondary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--secondary-hover);
+  text-decoration: underline;
+}
+
+/* ── Hero carousel ───────────────────────────────────────────── */
+.hero-carousel-img {
+  height: 480px;
+  object-fit: cover;
+}
+
+/* Semi-transparent black overlay — 45% opacity keeps photos visible
+   while ensuring white text passes WCAG AA contrast. */
+#heroCarousel .carousel-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1;
+}
+
+/* Lift controls and indicators above the overlay (Bootstrap defaults to z-index 1) */
+#heroCarousel .carousel-control-prev,
+#heroCarousel .carousel-control-next,
+#heroCarousel .carousel-indicators {
+  z-index: 5;
+}
+
+/* Override Bootstrap's bottom-anchored caption → full-slide centred overlay */
+.hero-caption {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 3rem;
+  z-index: 10;
+  /* Prevent the full-size caption div from swallowing clicks on the arrows */
+  pointer-events: none;
+}
+
+/* Restore clicks for interactive elements inside the caption */
+.hero-caption a,
+.hero-caption button {
+  pointer-events: auto;
+}
+
+.hero-lead {
+  opacity: 0.92;
+  max-width: 620px;
+  margin: 0 auto 1.5rem;
+}
+
+.btn-hero-light {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.btn-hero-light:hover {
+  color: var(--primary-hover);
+}
+
+@media (max-width: 576px) {
+  .hero-carousel-img { height: 360px; }
+  .hero-caption { padding: 1.5rem 1rem; }
+  .hero-caption h1 { font-size: 1.5rem; }
+}
+
+/* ── Cuisine filter pills ───────────────────────────────────── */
+.cuisine-section-heading {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.cuisine-pill {
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid var(--secondary);
+  color: var(--secondary);
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.cuisine-pill:hover,
+.cuisine-pill.active {
+  background: var(--secondary);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+/* ── Section heading ────────────────────────────────────────── */
+.section-heading {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+/* ── Listing card image ─────────────────────────────────────── */
+.listing-card-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px 8px 0 0;
+  display: block;
+}
+
+.listing-card-placeholder {
+  width: 100%;
+  height: 180px;
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(135deg, #f5ddd4 0%, #c8e6e2 100%);
+}
+
+/* ── Listing card body ──────────────────────────────────────── */
+.cuisine-tag {
+  display: inline-block;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.listing-card-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--text-primary);
+}
+
+.listing-card-vendor {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  flex: 1;
+}
+
+.listing-card-price {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.listing-card-duration {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Card grid bottom spacing */
+.card-grid {
+  margin-bottom: 2rem;
+}
+
+/* ── Feature / value-prop cards ─────────────────────────────── */
+.feature-card {
+  padding: 2rem 1.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  margin-bottom: 1rem;
+}
+
+.feature-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.feature-body {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ── Footer ─────────────────────────────────────────────────── */
+.site-footer {
+  background: #2E2E2E;
+  color: #ffffff;
+  padding: 48px 0 24px;
+  margin-top: 3rem;
+}
+
+.site-footer .footer-heading {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 1rem;
+}
+
+.site-footer .footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.site-footer .footer-links li {
+  margin-bottom: 0.5rem;
+}
+
+.site-footer a {
+  color: #cccccc;
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.site-footer hr {
+  border-color: rgba(255, 255, 255, 0.12);
+  margin: 2rem 0 1.25rem;
+}
+
+.footer-bottom {
+  font-size: 0.85rem;
+  color: #aaaaaa;
+}

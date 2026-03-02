@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Apply as Vendor — TasteLocal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card p-4 mt-3">
+      <h1 class="h3 mb-2">Apply as Vendor</h1>
+      <p class="text-secondary mb-4">Complete the form below. Your application will be reviewed by our team before activation.</p>
+
+      {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+          <ul class="mb-0 ps-3">
+            {% for field in form %}
+              {% for error in field.errors %}
+                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+              {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary mt-2">Submit Application</button>
+      </form>
+
+      <p class="mt-3 mb-0">
+        <a href="{% url 'tourist_dashboard' %}">Back to Dashboard</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

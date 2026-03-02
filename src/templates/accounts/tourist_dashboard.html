@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Tourist Dashboard — TasteLocal{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Tourist Dashboard</h1>
+<p class="text-secondary">Welcome, {{ user.username }}.</p>
+
+{% if has_pending_application %}
+  <div class="alert alert-warning" role="alert">
+    <strong>Vendor application pending approval.</strong>
+    <a href="{% url 'pending_vendor' %}" class="alert-link ms-1">View status</a>
+  </div>
+{% else %}
+  <p><a href="{% url 'apply_vendor' %}" class="btn btn-secondary btn-sm">Apply as Vendor</a></p>
+{% endif %}
+
+<div class="card p-3 mt-3">
+  <h2 class="h5 mb-3">Quick Links</h2>
+  <ul class="list-unstyled mb-0">
+    <li class="mb-2"><a href="{% url 'tourist_bookings' %}">My Bookings</a></li>
+    <li class="mb-2"><a href="#">My Reviews</a></li>
+    <li><a href="#">My Itineraries</a></li>
+  </ul>
+</div>
+{% endblock %}

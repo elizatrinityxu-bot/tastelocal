@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookings — TasteLocal{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">My Bookings</h1>
+
+{% if bookings %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Listing</th>
+          <th>Vendor</th>
+          <th>Date</th>
+          <th>Party Size</th>
+          <th>Status</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for booking in bookings %}
+          <tr>
+            <td>{{ booking.id }}</td>
+            <td>{{ booking.listing.title }}</td>
+            <td>{{ booking.listing.vendor.name }}</td>
+            <td>{{ booking.booking_date }}</td>
+            <td>{{ booking.party_size }}</td>
+            <td>{{ booking.get_status_display }}</td>
+            <td>{{ booking.notes|default:"—" }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <p class="text-secondary">You have no bookings yet.</p>
+{% endif %}
+
+<p class="mt-3"><a href="{% url 'tourist_dashboard' %}">Back to Dashboard</a></p>
+{% endblock %}

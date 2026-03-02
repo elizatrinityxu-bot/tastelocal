@@ -1,0 +1,153 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}TasteLocal{% endblock %}</title>
+
+  <!-- Google Fonts: Poppins (headings) + Inter (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- TasteLocal Brand Theme (loaded after Bootstrap to override defaults) -->
+  <link rel="stylesheet" href="{% static 'css/tastelocal-theme.css' %}">
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+      <a class="navbar-brand" href="/">
+        <div class="brand-container">
+          <svg class="brand-icon" viewBox="0 0 22 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <!-- Map pin outline -->
+            <path d="M11 1.5C6.86 1.5 3.5 4.86 3.5 9C3.5 14.25 11 24.5 11 24.5C11 24.5 18.5 14.25 18.5 9C18.5 4.86 15.14 1.5 11 1.5Z" stroke="currentColor" stroke-width="1.4"/>
+            <!-- Fork: three tines -->
+            <line x1="8.5" y1="5" x2="8.5" y2="9.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+            <line x1="11"  y1="5" x2="11"  y2="9.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+            <line x1="13.5" y1="5" x2="13.5" y2="9.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+            <!-- Fork: neck curves converging to handle -->
+            <path d="M8.5 9.5 Q8.5 11.5 11 11.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+            <path d="M13.5 9.5 Q13.5 11.5 11 11.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+            <!-- Fork: handle -->
+            <line x1="11" y1="11.5" x2="11" y2="15.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+          </svg>
+          <span class="brand-logo"><span class="brand-taste">Taste</span><span class="brand-local">Local</span></span>
+        </div>
+      </a>
+
+      <button class="navbar-toggler" type="button"
+              data-bs-toggle="collapse" data-bs-target="#mainNav"
+              aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'browse_listings' %}active{% endif %}"
+               href="{% url 'browse_listings' %}">Experiences</a>
+          </li>
+          {% if user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link {% if request.resolver_match.url_name in 'tourist_dashboard,vendor_dashboard,dashboard' %}active{% endif %}"
+                 href="{% url 'dashboard' %}">Dashboard</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Log out</a>
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}"
+                 href="{% url 'login' %}">Log in</a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-primary btn-sm px-3" href="{% url 'register' %}">Register</a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash messages -->
+  {% if messages %}
+    <div class="container mt-3">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Page content -->
+  <main class="container py-4">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="row g-4">
+
+        <div class="col-6 col-md-3">
+          <p class="footer-heading">Company</p>
+          <ul class="footer-links">
+            <li><a href="#">About TasteLocal</a></li>
+            <li><a href="#">How It Works</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Blog</a></li>
+          </ul>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <p class="footer-heading">Explore</p>
+          <ul class="footer-links">
+            <li><a href="{% url 'browse_listings' %}">Browse Experiences</a></li>
+            <li><a href="{% url 'browse_listings' %}">Popular Cuisines</a></li>
+            <li><a href="{% url 'apply_vendor' %}">Become a Vendor</a></li>
+          </ul>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <p class="footer-heading">Support</p>
+          <ul class="footer-links">
+            <li><a href="#">Help Center</a></li>
+            <li><a href="#">FAQs</a></li>
+            <li><a href="#">Contact Us</a></li>
+          </ul>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <p class="footer-heading">Legal</p>
+          <ul class="footer-links">
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <hr>
+
+      <p class="footer-bottom text-center mb-0">
+        &copy; 2026 TasteLocal. All rights reserved.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 JS bundle (includes Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
