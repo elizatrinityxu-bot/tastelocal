@@ -179,6 +179,7 @@ input[type="email"],
 input[type="password"],
 input[type="number"],
 input[type="date"],
+input[type="datetime-local"],
 input[type="url"],
 select,
 textarea {
@@ -200,12 +201,24 @@ input[type="email"]:focus,
 input[type="password"]:focus,
 input[type="number"]:focus,
 input[type="date"]:focus,
+input[type="datetime-local"]:focus,
 input[type="url"]:focus,
 select:focus,
 textarea:focus {
   border-color: var(--secondary);
   outline: 0;
   box-shadow: 0 0 0 0.2rem rgba(42, 157, 143, 0.2);
+}
+
+/* Red border for inputs marked invalid by JS or Bootstrap */
+.form-control.is-invalid {
+  border-color: var(--error);
+  box-shadow: none;
+}
+
+.form-control.is-invalid:focus {
+  border-color: var(--error);
+  box-shadow: 0 0 0 0.2rem rgba(217, 83, 79, 0.2);
 }
 
 /* ── Tables ─────────────────────────────────────────────────── */
@@ -215,6 +228,15 @@ textarea:focus {
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
   border-color: var(--secondary);
+}
+
+.table a {
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.table a:hover {
+  text-decoration: underline;
 }
 
 /* ── Links ──────────────────────────────────────────────────── */
@@ -328,6 +350,126 @@ a:hover {
   margin-bottom: 0;
 }
 
+/* ── Nearby Listings — flex split-pane layout ───────────────── */
+
+/*
+ * Desktop: two-column flex pane.
+ * Height is set to fill the viewport below the search form via JS
+ * (adjustHybridHeight). The CSS calc is just a fallback.
+ * - Left col owns overflow-y: auto so only the cards list scrolls.
+ * - Right col contains the map which stretches to fill 100%.
+ * - The section itself sits in normal document flow so the footer
+ *   is reachable by scrolling the page past the section.
+ */
+.nearby-hybrid-section {
+  display: flex;
+  align-items: stretch;
+  gap: 1.25rem;
+  height: calc(100vh - 260px); /* JS recalculates on load/resize */
+  min-height: 400px;
+  margin-bottom: 2rem;
+}
+
+.nearby-cards-col {
+  flex: 0 0 58%;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  padding-right: 4px;
+}
+
+.nearby-map-col {
+  flex: 1;
+  min-width: 0;
+}
+
+#nearby-map {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10);
+}
+
+/* Mobile: stack vertically, natural page scroll, no fixed heights */
+@media (max-width: 991.98px) {
+  .nearby-hybrid-section {
+    flex-direction: column;
+    height: auto;
+    min-height: unset;
+  }
+
+  .nearby-cards-col {
+    flex: none;
+    width: 100%;
+    overflow-y: visible;
+    scrollbar-gutter: auto;
+    padding-right: 0;
+  }
+
+  .nearby-map-col {
+    flex: none;
+    width: 100%;
+    height: 420px;
+  }
+}
+
+/* Leaflet custom marker */
+.map-marker {
+  width: 26px;
+  height: 26px;
+  background-color: var(--primary);
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.30);
+}
+
+/* Leaflet popup */
+.map-popup {
+  min-width: 150px;
+}
+
+.map-popup-title {
+  display: block;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.map-popup-price {
+  font-size: 0.8rem;
+  color: var(--primary);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.map-popup-link {
+  font-size: 0.8rem;
+  color: var(--secondary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.map-popup-link:hover {
+  text-decoration: underline;
+}
+
+/* ── Distance badge (nearby listings card overlay) ──────────── */
+.distance-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.60);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  z-index: 1;
+  letter-spacing: 0.02em;
+}
+
 /* ── Listing card image ─────────────────────────────────────── */
 .listing-card-img {
   width: 100%;
@@ -410,6 +552,435 @@ a:hover {
   font-size: 0.9rem;
   color: var(--text-secondary);
   margin: 0;
+}
+
+/* ── Listing description (generated HTML) ───────────────────── */
+.listing-description p {
+  margin-bottom: 0.75rem;
+}
+
+.listing-description ul {
+  padding-left: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.listing-description li {
+  margin-bottom: 0.25rem;
+}
+
+.listing-description strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Review carousel ────────────────────────────────────────── */
+.review-rating-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.review-avg-number {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 2rem;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.review-dots {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.dot-filled {
+  background-color: #00AA6C;
+}
+
+.dot-empty {
+  background-color: transparent;
+  border: 2px solid #00AA6C;
+}
+
+.review-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.review-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.review-reviewer-name {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.review-date {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.review-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  flex: 1;
+}
+
+.review-carousel-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 1.25rem;
+}
+
+.review-nav-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid #dee2e6;
+  background: #ffffff;
+  color: var(--text-primary);
+  font-size: 1.3rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.review-nav-btn:hover {
+  background: var(--secondary);
+  border-color: var(--secondary);
+  color: #ffffff;
+}
+
+.review-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #dee2e6;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.review-indicator-dot.active,
+.review-indicator-dot:hover {
+  background: var(--secondary);
+  transform: scale(1.25);
+}
+
+/* ── Tourist Dashboard — stat cards ─────────────────────────── */
+.stat-card {
+  display: block;
+  text-align: center;
+  padding: 2rem 1.5rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.stat-card-icon {
+  font-size: 2rem;
+  line-height: 1;
+  margin-bottom: 0.625rem;
+}
+
+.stat-card-count {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.75rem;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.stat-card-count.zero {
+  color: var(--text-secondary);
+}
+
+.stat-card-label {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.stat-card-empty {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.stat-card-cta {
+  font-size: 0.85rem;
+  color: var(--secondary);
+  font-weight: 500;
+  margin: 0;
+}
+
+/* ── Dashboard page typography ──────────────────────────────── */
+
+/* 30px page titles — keeps consistency across dashboard, bookings,
+   reviews, and itinerary pages at all viewport sizes. */
+.page-heading {
+  font-size: 1.875rem;   /* 30px */
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+/* 20px section labels (e.g., "Activity Overview") */
+.section-subheading {
+  font-size: 1.25rem;    /* 20px */
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ── Bookings table ──────────────────────────────────────────── */
+.booking-table {
+  font-size: 0.9375rem;  /* 15px */
+}
+
+.booking-table thead th {
+  padding-top: 0.875rem;
+  padding-bottom: 0.875rem;
+}
+
+.booking-table tbody td {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+/* Teal-tinted row hover — overrides Bootstrap's grey default */
+.booking-table.table-hover > tbody > tr:hover > * {
+  --bs-table-bg-state: rgba(42, 157, 143, 0.06);
+}
+
+/* Dark link that shifts to teal on hover — readable in table context */
+.booking-listing-link {
+  color: var(--text-primary);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.booking-listing-link:hover {
+  color: var(--secondary);
+  text-decoration: underline;
+}
+
+/* Status badges */
+.booking-status-confirmed  { background-color: #4CAF50; color: #fff; }
+.booking-status-pending    { background-color: #ffc107; color: #212529; }
+.booking-status-cancelled  { background-color: #D9534F; color: #fff; }
+.booking-status-completed  { background-color: #6c757d; color: #fff; }
+
+/* ── Itinerary stop list ─────────────────────────────────────── */
+.itinerary-stop-list {
+  font-size: 0.9375rem;  /* 15px — up from 0.85rem */
+}
+
+.itinerary-stop-link {
+  color: var(--text-primary);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.itinerary-stop-link:hover {
+  color: var(--secondary);
+  text-decoration: underline;
+}
+
+/* ── Admin Panel ─────────────────────────────────────────────── */
+
+/* Page header block — title + subtitle with a bottom rule */
+.admin-page-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.admin-page-heading {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.125rem;   /* 34px */
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-primary);
+  margin-bottom: 0.375rem;
+}
+
+.admin-subtitle {
+  font-size: 1.0625rem;  /* 17px */
+  color: var(--text-secondary);
+  font-weight: 400;
+  margin-bottom: 0;
+}
+
+/* Uppercase eyebrow label above metric grid */
+.admin-section-label {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 0.875rem;
+}
+
+/* Back-navigation link — larger and styled, not plain small text */
+.admin-breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.9375rem;  /* 15px */
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+  transition: color 0.15s ease;
+}
+
+.admin-breadcrumb:hover {
+  color: var(--secondary);
+  text-decoration: none;
+}
+
+.admin-breadcrumb-arrow {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+/* Stat card overrides for admin context — bigger numbers, more padding */
+.admin-stat-grid .stat-card {
+  padding: 1.875rem 1.5rem;
+}
+
+.admin-stat-grid .stat-card-icon {
+  font-size: 2.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.admin-stat-grid .stat-card-count {
+  font-size: 2.5rem;     /* 40px — prominent but not oversized */
+}
+
+.admin-stat-grid .stat-card-label {
+  font-size: 0.9375rem;  /* 15px */
+}
+
+/* Section headings inside metric grid (Vendor Management / Review Moderation) */
+.admin-metric-section {
+  margin-bottom: 1.75rem;
+}
+
+.admin-metric-section + .admin-metric-section {
+  margin-top: 0.5rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.admin-metric-section-heading {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.25rem;    /* 20px */
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-metric-section-heading::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 1.25rem;
+  border-radius: 2px;
+  background-color: var(--secondary);
+  flex-shrink: 0;
+}
+
+/* Filter indicator pill on management list pages */
+.admin-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.admin-filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  background-color: rgba(42, 157, 143, 0.1);
+  color: var(--secondary);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.admin-filter-clear {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.admin-filter-clear:hover {
+  color: var(--error);
+  text-decoration: none;
+}
+
+/* Action button row below metric cards */
+.admin-actions {
+  display: flex;
+  gap: 0.875rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.admin-actions .btn {
+  min-width: 164px;
+  font-size: 0.9375rem;
+  padding: 0.625rem 1.375rem;
 }
 
 /* ── Footer ─────────────────────────────────────────────────── */

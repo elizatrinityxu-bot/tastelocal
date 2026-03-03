@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}My Reviews — TasteLocal{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <a href="{% url 'tourist_dashboard' %}" class="text-secondary small">&larr; Back to Dashboard</a>
+</div>
+
+<h1 class="mb-4">My Reviews</h1>
+
+{% if reviews %}
+  <div class="row row-cols-1 row-cols-md-2 g-3">
+    {% for review in reviews %}
+    <div class="col">
+      <div class="card h-100 p-3">
+
+        <!-- Listing info -->
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <a href="{% url 'listing_detail' review.listing.id %}"
+               class="fw-semibold"
+               style="color: var(--text-primary); font-family: 'Poppins', sans-serif;">
+              {{ review.listing.title }}
+            </a>
+            <div class="text-secondary small">{{ review.listing.vendor.name }}</div>
+          </div>
+          <span class="text-secondary small ms-3 flex-shrink-0">{{ review.created_at|date:"M Y" }}</span>
+        </div>
+
+        <!-- Star rating -->
+        <div class="review-dots mb-2">
+          {% for i in "12345"|make_list %}
+            {% if forloop.counter <= review.rating %}
+              <span class="dot dot-filled"></span>
+            {% else %}
+              <span class="dot dot-empty"></span>
+            {% endif %}
+          {% endfor %}
+          <span class="text-secondary small ms-1">{{ review.rating }}/5</span>
+        </div>
+
+        <!-- Review text -->
+        <p class="review-text mb-0">{{ review.review_text }}</p>
+
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+{% else %}
+  <!-- Empty state -->
+  <div class="text-center py-5">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">&#11088;</div>
+    <h2 class="h5 mb-2" style="color: var(--text-primary);">No reviews yet</h2>
+    <p class="text-secondary mb-4">You haven't reviewed any experiences. Book one and share your thoughts!</p>
+    <a href="{% url 'browse_listings' %}" class="btn btn-primary">Explore Experiences</a>
+  </div>
+{% endif %}
+
+{% endblock %}

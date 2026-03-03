@@ -1,3 +1,5 @@
+import datetime
+
 from django.conf import settings
 from django.db import models
 
@@ -28,6 +30,9 @@ class Vendor(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
     is_approved = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    opening_time = models.TimeField(default=datetime.time(9, 0))
+    closing_time = models.TimeField(default=datetime.time(21, 0))
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):

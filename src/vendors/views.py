@@ -94,9 +94,33 @@ def listing_detail(request, pk):
     listing = get_object_or_404(
         Listing.objects.select_related("vendor").prefetch_related("images"),
         pk=pk,
-        availability=True,
     )
-    return render(request, "vendors/listing_detail.html", {"listing": listing})
+    reviews = list(
+        listing.reviews.filter(is_approved=True).select_related("tourist").order_by("-created_at")
+    )
+    review_count = len(reviews)
+    avg_rating = (
+        round(sum(r.rating for r in reviews) / review_count, 1)
+        if review_count else None
+    )
+    avg_rating_int = int(avg_rating) if avg_rating else 0
+    review_slides = [reviews[i:i + 2] for i in range(0, len(reviews), 2)]
+
+    from_page = request.GET.get("from", "")
+    back_lat  = request.GET.get("lat", "")
+    back_lng  = request.GET.get("lng", "")
+
+    return render(request, "vendors/listing_detail.html", {
+        "listing": listing,
+        "reviews": reviews,
+        "review_slides": review_slides,
+        "review_count": review_count,
+        "avg_rating": avg_rating,
+        "avg_rating_int": avg_rating_int,
+        "from_page": from_page,
+        "back_lat": back_lat,
+        "back_lng": back_lng,
+    })
 
 
 # ---------------------------------------------------------------------------
@@ -116,7 +140,7 @@ def browse_listings(request):
 
     qs = (
         Listing.objects
-        .filter(availability=True)
+        .filter(availability=True, vendor__is_active=True)
         .select_related("vendor")
         .prefetch_related("images")
         .order_by("cuisine_type", "title")
@@ -169,8 +193,9 @@ def nearby_listings(request):
             )
 
         listings = (
-            Listing.objects.filter(availability=True)
+            Listing.objects.filter(availability=True, vendor__is_active=True)
             .select_related("vendor")
+            .prefetch_related("images")
         )
 
         for listing in listings:

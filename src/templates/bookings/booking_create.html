@@ -8,21 +8,22 @@
     <div class="card p-4 mt-3">
       <h1 class="h3 mb-3">Book: {{ listing.title }}</h1>
 
+      <!-- Listing summary -->
       <ul class="list-unstyled text-secondary mb-4">
         <li><strong>Vendor:</strong> {{ listing.vendor.name }}</li>
-        <li><strong>Price:</strong> ${{ listing.price }}</li>
-        <li><strong>Max capacity:</strong> {{ listing.max_capacity }}</li>
+        <li><strong>Price:</strong> ${{ listing.price }} / person</li>
+        <li><strong>Max capacity:</strong> {{ listing.max_capacity }} guest{{ listing.max_capacity|pluralize }}</li>
         <li><strong>Duration:</strong> {{ listing.duration }} minutes</li>
+        <li>
+          <strong>Opening hours:</strong>
+          {{ listing.vendor.opening_time|time:"H:i" }} – {{ listing.vendor.closing_time|time:"H:i" }}
+        </li>
       </ul>
 
-      {% if form.errors %}
+      <!-- Non-field errors (e.g. cross-field errors) -->
+      {% if form.non_field_errors %}
         <div class="alert alert-danger" role="alert">
           <ul class="mb-0 ps-3">
-            {% for field in form %}
-              {% for error in field.errors %}
-                <li>{{ field.label }}: {{ error }}</li>
-              {% endfor %}
-            {% endfor %}
             {% for error in form.non_field_errors %}
               <li>{{ error }}</li>
             {% endfor %}
@@ -30,10 +31,55 @@
         </div>
       {% endif %}
 
-      <form method="post">
+      <!-- novalidate disables browser popup errors; our JS + Django handle all validation -->
+      <form method="post" novalidate>
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary w-100 mt-2">Confirm Booking</button>
+
+        <!-- Booking Date & Time -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="{{ form.booking_date.id_for_label }}">
+            Booking Date &amp; Time
+          </label>
+          {{ form.booking_date }}
+          <div class="form-text">
+            Choose a time between {{ listing.vendor.opening_time|time:"H:i" }}
+            and {{ listing.vendor.closing_time|time:"H:i" }}.
+          </div>
+          {% if form.booking_date.errors %}
+            <div class="text-danger small mt-1">
+              {% for e in form.booking_date.errors %}{{ e }}{% endfor %}
+            </div>
+          {% endif %}
+          <!-- Client-side error target — hidden until JS fires -->
+          <div class="text-danger small mt-1" id="date-client-error" style="display:none;"></div>
+        </div>
+
+        <!-- Party Size -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="{{ form.party_size.id_for_label }}">
+            Party Size
+          </label>
+          {{ form.party_size }}
+          <div class="form-text">
+            Between 1 and {{ listing.max_capacity }} guest{{ listing.max_capacity|pluralize }}.
+          </div>
+          {% if form.party_size.errors %}
+            <div class="text-danger small mt-1">
+              {% for e in form.party_size.errors %}{{ e }}{% endfor %}
+            </div>
+          {% endif %}
+          <div class="text-danger small mt-1" id="party-client-error" style="display:none;"></div>
+        </div>
+
+        <!-- Notes -->
+        <div class="mb-4">
+          <label class="form-label fw-semibold" for="{{ form.notes.id_for_label }}">
+            Notes <span class="text-secondary fw-normal">(optional)</span>
+          </label>
+          {{ form.notes }}
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Confirm Booking</button>
       </form>
 
       <p class="mt-3 mb-0">
@@ -42,4 +88,103 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  'use strict';
+
+  var MAX_CAPACITY = {{ listing.max_capacity }};
+  var OPENING      = "{{ listing.vendor.opening_time|time:'H:i' }}";  /* "09:00" */
+  var CLOSING      = "{{ listing.vendor.closing_time|time:'H:i' }}";  /* "21:00" */
+
+  /* ── Helpers ─────────────────────────────────────────────────── */
+
+  /* Zero-pad a number to two digits. */
+  function z(n) { return n < 10 ? '0' + n : '' + n; }
+
+  /* Format a Date as the value used by datetime-local (YYYY-MM-DDTHH:MM). */
+  function toLocalISO(d) {
+    return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate())
+         + 'T' + z(d.getHours()) + ':' + z(d.getMinutes());
+  }
+
+  /* Show or clear an inline client-side error below an input. */
+  function setError(input, errorEl, msg) {
+    if (msg) {
+      errorEl.textContent = msg;
+      errorEl.style.display = 'block';
+      input.classList.add('is-invalid');
+    } else {
+      errorEl.textContent = '';
+      errorEl.style.display = 'none';
+      input.classList.remove('is-invalid');
+    }
+  }
+
+  /* ── Booking date ────────────────────────────────────────────── */
+  var dtInput   = document.getElementById('id_booking_date');
+  var dtErrorEl = document.getElementById('date-client-error');
+
+  if (dtInput) {
+    /* Restrict the picker: earliest selectable moment is right now. */
+    dtInput.min = toLocalISO(new Date());
+
+    /* If the server already returned an error for this field, mark it. */
+    {% if form.booking_date.errors %}
+    dtInput.classList.add('is-invalid');
+    {% endif %}
+
+    function validateDate() {
+      var val = dtInput.value;
+      if (!val) { setError(dtInput, dtErrorEl, ''); return; }
+
+      var timePart = val.split('T')[1];   /* "HH:MM" */
+      if (!timePart) { setError(dtInput, dtErrorEl, ''); return; }
+
+      var msg = (timePart < OPENING || timePart >= CLOSING)
+        ? 'Booking time must be between ' + OPENING + ' and ' + CLOSING + '.'
+        : '';
+
+      setError(dtInput, dtErrorEl, msg);
+    }
+
+    dtInput.addEventListener('change', validateDate);
+    dtInput.addEventListener('blur',   validateDate);
+  }
+
+  /* ── Party size ──────────────────────────────────────────────── */
+  var psInput   = document.getElementById('id_party_size');
+  var psErrorEl = document.getElementById('party-client-error');
+
+  if (psInput) {
+    {% if form.party_size.errors %}
+    psInput.classList.add('is-invalid');
+    {% endif %}
+
+    function validatePartySize() {
+      var raw = psInput.value.trim();
+      if (!raw) { setError(psInput, psErrorEl, ''); return; }
+
+      var val = parseInt(raw, 10);
+      var msg = '';
+
+      if (isNaN(val) || val < 1) {
+        msg = 'Party size must be at least 1.';
+      } else if (val > MAX_CAPACITY) {
+        msg = 'Maximum ' + MAX_CAPACITY + ' guest'
+            + (MAX_CAPACITY !== 1 ? 's' : '') + ' for this experience.';
+      }
+
+      setError(psInput, psErrorEl, msg);
+    }
+
+    /* blur: validate when leaving the field */
+    psInput.addEventListener('blur',  validatePartySize);
+    /* input: give live feedback while typing */
+    psInput.addEventListener('input', validatePartySize);
+  }
+}());
+</script>
 {% endblock %}

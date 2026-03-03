@@ -3,18 +3,22 @@
 {% block title %}My Bookings — TasteLocal{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">My Bookings</h1>
+<div class="mb-3">
+  <a href="{% url 'tourist_dashboard' %}" class="text-secondary small">&larr; Back to Dashboard</a>
+</div>
+
+<h1 class="page-heading mb-4">My Bookings</h1>
 
 {% if bookings %}
   <div class="table-responsive">
-    <table class="table table-hover align-middle">
+    <table class="table table-hover align-middle booking-table">
       <thead>
         <tr>
           <th>#</th>
-          <th>Listing</th>
+          <th>Experience</th>
           <th>Vendor</th>
           <th>Date</th>
-          <th>Party Size</th>
+          <th>Guests</th>
           <th>Status</th>
           <th>Notes</th>
         </tr>
@@ -22,21 +26,35 @@
       <tbody>
         {% for booking in bookings %}
           <tr>
-            <td>{{ booking.id }}</td>
-            <td>{{ booking.listing.title }}</td>
+            <td class="text-secondary">{{ booking.id }}</td>
+            <td>
+              <a href="{% url 'listing_detail' booking.listing.id %}?from=bookings"
+                 class="booking-listing-link">
+                {{ booking.listing.title }}
+              </a>
+            </td>
             <td>{{ booking.listing.vendor.name }}</td>
-            <td>{{ booking.booking_date }}</td>
+            <td>{{ booking.booking_date|date:"j M Y, g:i A" }}</td>
             <td>{{ booking.party_size }}</td>
-            <td>{{ booking.get_status_display }}</td>
-            <td>{{ booking.notes|default:"—" }}</td>
+            <td>
+              <span class="badge booking-status-{{ booking.status|lower }}">
+                {{ booking.get_status_display }}
+              </span>
+            </td>
+            <td class="text-secondary">{{ booking.notes|default:"—" }}</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
+
 {% else %}
-  <p class="text-secondary">You have no bookings yet.</p>
+  <div class="text-center py-5">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">&#128197;</div>
+    <h2 class="h5 mb-2" style="color: var(--text-primary);">No bookings yet</h2>
+    <p class="text-secondary mb-4">You haven't made any bookings. Find an experience that excites you!</p>
+    <a href="{% url 'browse_listings' %}" class="btn btn-primary">Explore Experiences</a>
+  </div>
 {% endif %}
 
-<p class="mt-3"><a href="{% url 'tourist_dashboard' %}">Back to Dashboard</a></p>
 {% endblock %}

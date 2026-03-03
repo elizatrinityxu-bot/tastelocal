@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard — TasteLocal{% endblock %}
+
+{% block content %}
+
+<div class="admin-page-header">
+  <h1 class="admin-page-heading">Admin Dashboard</h1>
+  <p class="admin-subtitle">Manage vendors and review moderation across the platform.</p>
+</div>
+
+<!-- ── Vendor Metrics ── -->
+<div class="admin-metric-section">
+  <h2 class="admin-metric-section-heading">Vendor Management</h2>
+  <div class="row row-cols-1 row-cols-sm-3 g-3 admin-stat-grid">
+
+    <div class="col">
+      <a href="{% url 'admin_vendors' %}" class="text-decoration-none">
+        <div class="stat-card card h-100">
+          <div class="stat-card-icon">&#127968;</div>
+          <div class="stat-card-count">{{ total_vendors }}</div>
+          <div class="stat-card-label">Total Vendors</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="col">
+      <a href="{% url 'admin_vendors' %}?status=pending" class="text-decoration-none">
+        <div class="stat-card card h-100">
+          <div class="stat-card-icon">&#9203;</div>
+          <div class="stat-card-count {% if pending_vendors %}text-warning{% endif %}">{{ pending_vendors }}</div>
+          <div class="stat-card-label">Pending Approval</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="col">
+      <a href="{% url 'admin_vendors' %}?status=inactive" class="text-decoration-none">
+        <div class="stat-card card h-100">
+          <div class="stat-card-icon">&#128683;</div>
+          <div class="stat-card-count {% if inactive_vendors %}text-warning{% endif %}">{{ inactive_vendors }}</div>
+          <div class="stat-card-label">Deactivated Vendors</div>
+        </div>
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Review Metrics ── -->
+<div class="admin-metric-section">
+  <h2 class="admin-metric-section-heading">Review Moderation</h2>
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 admin-stat-grid">
+
+    <div class="col">
+      <a href="{% url 'admin_reviews' %}" class="text-decoration-none">
+        <div class="stat-card card h-100">
+          <div class="stat-card-icon">&#11088;</div>
+          <div class="stat-card-count">{{ total_reviews }}</div>
+          <div class="stat-card-label">Total Reviews</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="col">
+      <a href="{% url 'admin_reviews' %}?status=hidden" class="text-decoration-none">
+        <div class="stat-card card h-100">
+          <div class="stat-card-icon">&#128065;</div>
+          <div class="stat-card-count {% if hidden_reviews %}text-warning{% endif %}">{{ hidden_reviews }}</div>
+          <div class="stat-card-label">Hidden Reviews</div>
+        </div>
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Quick Actions ── -->
+<div class="admin-actions">
+  <a href="{% url 'admin_vendors' %}" class="btn btn-primary">Manage Vendors</a>
+  <a href="{% url 'admin_reviews' %}" class="btn btn-outline-secondary">Manage Reviews</a>
+</div>
+
+{% endblock %}

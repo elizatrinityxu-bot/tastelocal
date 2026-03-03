@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Vendor Management — TasteLocal{% endblock %}
+
+{% block content %}
+<a href="{% url 'admin_dashboard' %}" class="admin-breadcrumb">
+  <span class="admin-breadcrumb-arrow">&larr;</span> Back to Admin Dashboard
+</a>
+
+<h1 class="admin-page-heading mb-4">Vendor Management</h1>
+
+{% if status_filter %}
+<div class="admin-filter-bar">
+  <span class="admin-filter-pill">
+    &#9135;
+    {% if status_filter == "pending" %}Pending approval only
+    {% elif status_filter == "inactive" %}Deactivated only
+    {% endif %}
+  </span>
+  <a href="{% url 'admin_vendors' %}" class="admin-filter-clear">&times; Clear filter</a>
+</div>
+{% endif %}
+
+{% if vendors %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle" style="font-size: 0.9375rem;">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Vendor Name</th>
+          <th>Owner</th>
+          <th>Cuisine</th>
+          <th>Address</th>
+          <th>Approved</th>
+          <th>Active</th>
+          <th>Joined</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for vendor in vendors %}
+          <tr>
+            <td class="text-secondary">{{ vendor.id }}</td>
+            <td class="fw-semibold">{{ vendor.name }}</td>
+            <td>{{ vendor.user.get_full_name|default:vendor.user.username }}</td>
+            <td>{{ vendor.get_cuisine_types_display }}</td>
+            <td class="text-secondary" style="max-width: 180px; font-size: 0.85rem;">
+              {{ vendor.address|truncatechars:50 }}
+            </td>
+            <td>
+              {% if vendor.is_approved %}
+                <span class="badge booking-status-confirmed">Yes</span>
+              {% else %}
+                <span class="badge booking-status-pending">Pending</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if vendor.is_active %}
+                <span class="badge booking-status-confirmed">Active</span>
+              {% else %}
+                <span class="badge booking-status-cancelled">Inactive</span>
+              {% endif %}
+            </td>
+            <td class="text-secondary">{{ vendor.created_at|date:"j M Y" }}</td>
+            <td>
+              {% if vendor.is_active %}
+                <form method="post" action="{% url 'admin_vendor_action' vendor.id %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="deactivate">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Deactivate</button>
+                </form>
+              {% else %}
+                <form method="post" action="{% url 'admin_vendor_action' vendor.id %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="activate">
+                  <button type="submit" class="btn btn-sm btn-outline-success">Activate</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="text-center py-5">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">&#127968;</div>
+    {% if status_filter == "pending" %}
+      <h2 class="h5 mb-2" style="color: var(--text-primary);">No pending vendor applications yet</h2>
+      <p class="text-secondary">Vendor applications will appear here once submitted.</p>
+    {% elif status_filter == "inactive" %}
+      <h2 class="h5 mb-2" style="color: var(--text-primary);">No deactivated vendors yet</h2>
+      <p class="text-secondary">Deactivated vendors will appear here after an admin deactivates them.</p>
+    {% else %}
+      <h2 class="h5 mb-2" style="color: var(--text-primary);">No vendors yet</h2>
+      <p class="text-secondary">Approved vendors will appear here once created or approved.</p>
+    {% endif %}
+  </div>
+{% endif %}
+{% endblock %}

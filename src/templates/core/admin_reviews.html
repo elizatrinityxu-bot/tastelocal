@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Review Management — TasteLocal{% endblock %}
+
+{% block content %}
+<a href="{% url 'admin_dashboard' %}" class="admin-breadcrumb">
+  <span class="admin-breadcrumb-arrow">&larr;</span> Back to Admin Dashboard
+</a>
+
+<h1 class="admin-page-heading mb-4">Review Management</h1>
+
+{% if status_filter %}
+<div class="admin-filter-bar">
+  <span class="admin-filter-pill">
+    &#9135;
+    {% if status_filter == "hidden" %}Hidden reviews only{% endif %}
+  </span>
+  <a href="{% url 'admin_reviews' %}" class="admin-filter-clear">&times; Clear filter</a>
+</div>
+{% endif %}
+
+{% if reviews %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle" style="font-size: 0.9375rem;">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Listing</th>
+          <th>Reviewer</th>
+          <th>Rating</th>
+          <th>Review</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for review in reviews %}
+          <tr>
+            <td class="text-secondary">{{ review.id }}</td>
+            <td>
+              <a href="{% url 'listing_detail' review.listing.id %}" class="booking-listing-link">
+                {{ review.listing.title }}
+              </a>
+              <div class="text-secondary" style="font-size: 0.8rem;">{{ review.listing.vendor.name }}</div>
+            </td>
+            <td>{{ review.tourist.get_full_name|default:review.tourist.username }}</td>
+            <td>
+              <span style="color: var(--accent); font-weight: 600;">{{ review.rating }}/5</span>
+            </td>
+            <td style="max-width: 240px;">
+              <span title="{{ review.review_text }}">
+                {{ review.review_text|truncatechars:80 }}
+              </span>
+            </td>
+            <td class="text-secondary">{{ review.created_at|date:"j M Y" }}</td>
+            <td>
+              {% if review.is_approved %}
+                <span class="badge booking-status-confirmed">Visible</span>
+              {% else %}
+                <span class="badge booking-status-cancelled">Hidden</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="d-flex gap-1 flex-wrap">
+                {% if not review.is_approved %}
+                  <form method="post" action="{% url 'admin_review_action' review.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="approve">
+                    <button type="submit" class="btn btn-sm btn-outline-success">Approve</button>
+                  </form>
+                {% else %}
+                  <form method="post" action="{% url 'admin_review_action' review.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="hide">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">Hide</button>
+                  </form>
+                {% endif %}
+                <form method="post" action="{% url 'admin_review_action' review.id %}"
+                      onsubmit="return confirm('Delete this review permanently?')">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="delete">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="text-center py-5">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">&#11088;</div>
+    <h2 class="h5 mb-2" style="color: var(--text-primary);">No reviews yet</h2>
+    <p class="text-secondary">Reviews will appear here once customers submit them.</p>
+  </div>
+{% endif %}
+{% endblock %}

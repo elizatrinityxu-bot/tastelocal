@@ -5,7 +5,20 @@
 
 {% block content %}
 <div class="mb-3">
-  <a href="{% url 'browse_listings' %}" class="text-secondary small">&larr; Back to all experiences</a>
+  {% if from_page == "nearby" and back_lat and back_lng %}
+    <a href="{% url 'nearby_listings' %}?lat={{ back_lat }}&lng={{ back_lng }}"
+       class="text-secondary small">&larr; Back to Nearby Listings</a>
+  {% elif from_page == "bookings" %}
+    <a href="{% url 'tourist_bookings' %}"
+       class="text-secondary small">&larr; Back to My Bookings</a>
+  {% elif from_page == "itineraries" %}
+    <a href="{% url 'my_itineraries' %}"
+       class="text-secondary small">&larr; Back to My Itineraries</a>
+  {% else %}
+    <a href="{% url 'browse_listings' %}"
+       class="text-secondary small"
+       id="breadcrumbBack">&larr; Back to all experiences</a>
+  {% endif %}
 </div>
 
 <div class="row g-4">
@@ -35,7 +48,7 @@
     <h1 class="h3 fw-bold mb-1" style="color: var(--text-primary);">{{ listing.title }}</h1>
     <p class="mb-3" style="color: var(--secondary);">by {{ listing.vendor.name }}</p>
 
-    <p class="text-secondary mb-4">{{ listing.description }}</p>
+    <div class="listing-description text-secondary mb-4">{{ listing.description|safe }}</div>
 
     <!-- Stats row -->
     <div class="row row-cols-3 g-2 mb-4 text-center">
@@ -81,4 +94,167 @@
 
   </div>
 </div>
+
+<!-- ── Reviews ──────────────────────────────────────────────────────── -->
+<hr class="my-5">
+<section id="reviews" class="mb-5">
+
+  <!-- Heading + rating summary -->
+  <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+    <h2 class="h5 fw-bold mb-0" style="color: var(--text-primary);">Guest Reviews</h2>
+    {% if review_count %}
+    <div class="review-rating-summary">
+      <span class="review-avg-number">{{ avg_rating }}</span>
+      <div class="review-dots">
+        {% for i in "12345"|make_list %}
+          {% if forloop.counter <= avg_rating_int %}
+            <span class="dot dot-filled"></span>
+          {% else %}
+            <span class="dot dot-empty"></span>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <span class="text-secondary small">{{ review_count }} review{{ review_count|pluralize }}</span>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if review_count %}
+
+    <!-- Desktop carousel — 2 reviews per slide (hidden on mobile) -->
+    <div id="reviewCarouselDesktop"
+         class="carousel slide d-none d-md-block"
+         data-bs-ride="false" data-bs-touch="true">
+      <div class="carousel-inner">
+        {% for slide in review_slides %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+          <div class="row g-3">
+            {% for review in slide %}
+            <div class="col-6">
+              <div class="review-card h-100">
+                <div class="review-card-header">
+                  <span class="review-reviewer-name">
+                    {{ review.tourist.get_full_name|default:review.tourist.username }}
+                  </span>
+                  <span class="review-date">{{ review.created_at|date:"M Y" }}</span>
+                </div>
+                <div class="review-dots">
+                  {% for i in "12345"|make_list %}
+                    {% if forloop.counter <= review.rating %}
+                      <span class="dot dot-filled"></span>
+                    {% else %}
+                      <span class="dot dot-empty"></span>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+                <p class="review-text mb-0">{{ review.review_text|truncatechars:250 }}</p>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if review_slides|length > 1 %}
+    <div class="review-carousel-controls d-none d-md-flex">
+      <button class="review-nav-btn"
+              data-bs-target="#reviewCarouselDesktop" data-bs-slide="prev"
+              aria-label="Previous reviews">&#8249;</button>
+      {% for slide in review_slides %}
+        <button class="review-indicator-dot {% if forloop.first %}active{% endif %}"
+                data-bs-target="#reviewCarouselDesktop"
+                data-bs-slide-to="{{ forloop.counter0 }}"
+                aria-label="Slide {{ forloop.counter }}"></button>
+      {% endfor %}
+      <button class="review-nav-btn"
+              data-bs-target="#reviewCarouselDesktop" data-bs-slide="next"
+              aria-label="Next reviews">&#8250;</button>
+    </div>
+    {% endif %}
+
+    <!-- Mobile carousel — 1 review per slide (hidden on desktop) -->
+    <div id="reviewCarouselMobile"
+         class="carousel slide d-block d-md-none"
+         data-bs-ride="false" data-bs-touch="true">
+      <div class="carousel-inner">
+        {% for review in reviews %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+          <div class="review-card">
+            <div class="review-card-header">
+              <span class="review-reviewer-name">
+                {{ review.tourist.get_full_name|default:review.tourist.username }}
+              </span>
+              <span class="review-date">{{ review.created_at|date:"M Y" }}</span>
+            </div>
+            <div class="review-dots">
+              {% for i in "12345"|make_list %}
+                {% if forloop.counter <= review.rating %}
+                  <span class="dot dot-filled"></span>
+                {% else %}
+                  <span class="dot dot-empty"></span>
+                {% endif %}
+              {% endfor %}
+            </div>
+            <p class="review-text mb-0">{{ review.review_text|truncatechars:250 }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if reviews|length > 1 %}
+    <div class="review-carousel-controls d-flex d-md-none">
+      <button class="review-nav-btn"
+              data-bs-target="#reviewCarouselMobile" data-bs-slide="prev"
+              aria-label="Previous review">&#8249;</button>
+      {% for review in reviews %}
+        <button class="review-indicator-dot {% if forloop.first %}active{% endif %}"
+                data-bs-target="#reviewCarouselMobile"
+                data-bs-slide-to="{{ forloop.counter0 }}"
+                aria-label="Review {{ forloop.counter }}"></button>
+      {% endfor %}
+      <button class="review-nav-btn"
+              data-bs-target="#reviewCarouselMobile" data-bs-slide="next"
+              aria-label="Next review">&#8250;</button>
+    </div>
+    {% endif %}
+
+  {% else %}
+    <p class="text-secondary small text-center py-3">
+      No reviews yet — be the first to share your experience!
+    </p>
+  {% endif %}
+
+</section>
+
+<script>
+(function () {
+  // ── Review carousel indicator sync ───────────────────────────
+  ['reviewCarouselDesktop', 'reviewCarouselMobile'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('slide.bs.carousel', function (e) {
+      document.querySelectorAll('[data-bs-target="#' + id + '"].review-indicator-dot')
+        .forEach(function (dot, i) {
+          dot.classList.toggle('active', i === e.to);
+        });
+    });
+  });
+
+  // ── Breadcrumb history.back() fallback ────────────────────────
+  // Only active when the link targets the default "all experiences" page
+  // (i.e. the user did NOT arrive from Nearby Listings).
+  // If browser history exists, pressing the link behaves like the
+  // browser back button; the href remains as a no-JS/new-tab fallback.
+  var backLink = document.getElementById('breadcrumbBack');
+  if (backLink && window.history.length > 1) {
+    backLink.addEventListener('click', function (e) {
+      e.preventDefault();
+      history.back();
+    });
+  }
+}());
+</script>
 {% endblock %}
