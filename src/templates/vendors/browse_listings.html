@@ -20,16 +20,18 @@
 
 <!-- Filters --------------------------------------------------------------- -->
 <div class="card p-3 mb-4">
-  <form method="get" class="row g-2 align-items-end">
-    <div class="col-12 col-md-5">
-      <label class="form-label mb-1 small">Search</label>
+  <form method="get" class="search-bar">
+
+    <div class="search-field search-field-keyword">
+      <label class="hero-search-label">Keyword</label>
       <input type="text" name="q" value="{{ keyword }}"
              placeholder="e.g. hawker, cooking class..."
-             class="form-control form-control-sm">
+             class="form-control hero-search-input">
     </div>
-    <div class="col-12 col-md-5">
-      <label class="form-label mb-1 small">Cuisine</label>
-      <select name="cuisine" class="form-control form-control-sm">
+
+    <div class="search-field">
+      <label class="hero-search-label">Cuisine</label>
+      <select name="cuisine" class="form-select hero-search-input">
         <option value="">All cuisines</option>
         {% for value, label in cuisine_types %}
           <option value="{{ value }}" {% if value == active_cuisine %}selected{% endif %}>
@@ -38,9 +40,38 @@
         {% endfor %}
       </select>
     </div>
-    <div class="col-12 col-md-2">
-      <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+
+    <div class="search-field">
+      <label class="hero-search-label">Price</label>
+      <select name="price" class="form-select hero-search-input">
+        <option value="">Any price</option>
+        <option value="under-50"  {% if price_range == "under-50"  %}selected{% endif %}>Under S$50</option>
+        <option value="50-100"    {% if price_range == "50-100"    %}selected{% endif %}>S$50 – S$100</option>
+        <option value="100-200"   {% if price_range == "100-200"   %}selected{% endif %}>S$100 – S$200</option>
+        <option value="200-plus"  {% if price_range == "200-plus"  %}selected{% endif %}>S$200+</option>
+      </select>
     </div>
+
+    <div class="search-field">
+      <label class="hero-search-label">Rating</label>
+      <select name="min_rating" class="form-select hero-search-input">
+        <option value="">Any rating</option>
+        <option value="3"   {% if min_rating == "3"   %}selected{% endif %}>3&#11088;+</option>
+        <option value="4"   {% if min_rating == "4"   %}selected{% endif %}>4&#11088;+</option>
+        <option value="4.5" {% if min_rating == "4.5" %}selected{% endif %}>4.5&#11088;+</option>
+      </select>
+    </div>
+
+    <div class="search-field search-field-btn">
+      <label class="hero-search-label" aria-hidden="true">&nbsp;</label>
+      <div style="display:flex;gap:0.25rem;height:2.5rem;">
+        <button type="submit" class="btn btn-primary hero-search-btn" style="flex:1 1 auto;">Search</button>
+        {% if keyword or active_cuisine or price_range or min_rating %}
+          <a href="{% url 'browse_listings' %}" class="btn btn-outline-secondary" style="flex:0 0 2.5rem;width:2.5rem;padding:0;display:flex;align-items:center;justify-content:center;border-radius:0.5rem;" title="Clear filters">&times;</a>
+        {% endif %}
+      </div>
+    </div>
+
   </form>
 </div>
 
@@ -66,33 +97,51 @@
         <div class="card h-100 position-relative">
 
           <!-- Card image -->
+          <div class="card-img-wrap">
           {% with img=listing.images.all|first %}
             {% if img %}
               <img src="{% static img.image.name %}"
                    class="listing-card-img"
                    alt="{{ listing.title }}">
             {% else %}
-              <div class="listing-card-placeholder"></div>
+              <img src="{% static 'images/experiences/hawker-centre-tour.png' %}"
+                   class="listing-card-img"
+                   alt="{{ listing.title }}">
             {% endif %}
           {% endwith %}
+          </div>
+
+          <!-- Wishlist heart -->
+          {% if user.is_authenticated %}
+            <button type="button"
+                    class="wishlist-btn {% if listing.id in saved_listing_ids %}saved{% endif %}"
+                    data-toggle-url="{% url 'wishlist_toggle' listing.id %}"
+                    data-listing-id="{{ listing.id }}"
+                    data-title="{{ listing.title|escapejs }}"
+                    aria-label="{% if listing.id in saved_listing_ids %}Unsave{% else %}Save{% endif %} {{ listing.title }}">
+              {% if listing.id in saved_listing_ids %}&#9829;{% else %}&#9825;{% endif %}
+            </button>
+          {% else %}
+            <a href="{% url 'login' %}?next={{ request.path }}"
+               class="wishlist-btn"
+               aria-label="Save {{ listing.title }}">&#9825;</a>
+          {% endif %}
 
           <div class="card-body d-flex flex-column">
-            <span class="badge mb-2 d-inline-block"
-                  style="background:var(--accent); color:var(--text-primary); font-size:.75rem;">
-              {{ listing.get_cuisine_type_display }}
-            </span>
-            <h2 class="h6 card-title mb-1">{{ listing.title }}</h2>
-            <p class="text-secondary small mb-3" style="flex:1;">
-              {{ listing.vendor.name }}
-            </p>
-            <div class="d-flex justify-content-between align-items-center">
+            <span class="cuisine-tag">{{ listing.get_cuisine_type_display }}</span>
+            <h3 class="listing-card-title">{{ listing.title }}</h3>
+            <p class="listing-card-vendor">{{ listing.vendor.name }}</p>
+            {% if listing.avg_rating %}
+              <p class="listing-card-rating mb-1">
+                &#11088; {{ listing.avg_rating|floatformat:1 }}
+              </p>
+            {% endif %}
+            <div class="d-flex justify-content-between align-items-center mt-auto">
               <div>
-                <span class="fw-bold" style="color:var(--primary);">
-                  ${{ listing.price }}
-                </span>
-                <span class="text-secondary small"> / person</span>
+                <div class="listing-card-price">S${{ listing.price|floatformat:0 }}</div>
+                <div class="listing-card-per-person">per person</div>
               </div>
-              <span class="text-secondary small">{{ listing.duration }} min</span>
+              <span class="listing-card-duration">&#128338; {{ listing.duration }} min</span>
             </div>
           </div>
           <!-- Stretched link — whole card navigates to detail page -->

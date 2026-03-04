@@ -70,6 +70,23 @@ class Listing(models.Model):
         return self.title
 
 
+class ListingStop(models.Model):
+    listing = models.ForeignKey(
+        Listing,
+        on_delete=models.CASCADE,
+        related_name="stops",
+    )
+    stop_order = models.PositiveIntegerField()
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ["stop_order"]
+
+    def __str__(self):
+        return f"{self.stop_order}. {self.title}"
+
+
 class ListingImage(models.Model):
     listing = models.ForeignKey(
         Listing,

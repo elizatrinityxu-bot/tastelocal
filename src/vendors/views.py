@@ -1,13 +1,21 @@
 import math
 
 from django.contrib.auth.decorators import login_required
+from django.db.models import Avg, Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from accounts.decorators import tourist_required, vendor_required
+from core.models import WishlistItem
 
 from .forms import VendorApplicationForm
 from .geocoding import geocode_address
 from .models import Listing
+
+
+def _saved_listing_ids(user):
+    if not user.is_authenticated:
+        return set()
+    return set(WishlistItem.objects.filter(user=user).values_list("listing_id", flat=True))
 
 
 # ---------------------------------------------------------------------------
@@ -92,7 +100,7 @@ def pending_vendor(request):
 
 def listing_detail(request, pk):
     listing = get_object_or_404(
-        Listing.objects.select_related("vendor").prefetch_related("images"),
+        Listing.objects.select_related("vendor").prefetch_related("images", "stops"),
         pk=pk,
     )
     reviews = list(
@@ -106,12 +114,28 @@ def listing_detail(request, pk):
     avg_rating_int = int(avg_rating) if avg_rating else 0
     review_slides = [reviews[i:i + 2] for i in range(0, len(reviews), 2)]
 
+    similar = (
+        Listing.objects
+        .filter(
+            availability=True,
+            cuisine_type=listing.cuisine_type,
+            vendor__is_approved=True,
+            vendor__is_active=True,
+        )
+        .exclude(pk=listing.pk)
+        .annotate(avg_rating=Avg("reviews__rating", filter=Q(reviews__is_approved=True)))
+        .select_related("vendor")
+        .prefetch_related("images")
+        .order_by("?")[:3]
+    )
+
     from_page = request.GET.get("from", "")
     back_lat  = request.GET.get("lat", "")
     back_lng  = request.GET.get("lng", "")
 
     return render(request, "vendors/listing_detail.html", {
         "listing": listing,
+        "similar": similar,
         "reviews": reviews,
         "review_slides": review_slides,
         "review_count": review_count,
@@ -127,20 +151,33 @@ def listing_detail(request, pk):
 # Browse listings (cuisine / keyword filter — no geolocation required)
 # ---------------------------------------------------------------------------
 
+_PRICE_RANGES = {
+    "under-50":  (None, 50),
+    "50-100":    (50,  100),
+    "100-200":   (100, 200),
+    "200-plus":  (200, None),
+}
+
+
 def browse_listings(request):
     """
     Shows all available listings.  Optionally filtered by:
-      ?cuisine=MALAY   — one of the CuisineType values
-      ?q=hawker        — keyword search on title
+      ?cuisine=MALAY     — one of the CuisineType values
+      ?q=hawker          — keyword search on title + description
+      ?price=50-100      — price range bucket
+      ?min_rating=4      — minimum average approved-review rating
     """
     from .models import CuisineType
 
     cuisine_filter = request.GET.get("cuisine", "").upper()
-    keyword = request.GET.get("q", "").strip()
+    keyword       = request.GET.get("q", "").strip()
+    price_range   = request.GET.get("price", "")
+    min_rating    = request.GET.get("min_rating", "")
 
     qs = (
         Listing.objects
         .filter(availability=True, vendor__is_active=True)
+        .annotate(avg_rating=Avg("reviews__rating", filter=Q(reviews__is_approved=True)))
         .select_related("vendor")
         .prefetch_related("images")
         .order_by("cuisine_type", "title")
@@ -150,7 +187,20 @@ def browse_listings(request):
         qs = qs.filter(cuisine_type=cuisine_filter)
 
     if keyword:
-        qs = qs.filter(title__icontains=keyword)
+        qs = qs.filter(Q(title__icontains=keyword) | Q(description__icontains=keyword))
+
+    if price_range in _PRICE_RANGES:
+        low, high = _PRICE_RANGES[price_range]
+        if low is not None:
+            qs = qs.filter(price__gte=low)
+        if high is not None:
+            qs = qs.filter(price__lt=high)
+
+    if min_rating:
+        try:
+            qs = qs.filter(avg_rating__gte=float(min_rating))
+        except ValueError:
+            min_rating = ""
 
     return render(
         request,
@@ -160,6 +210,9 @@ def browse_listings(request):
             "cuisine_types": CuisineType.choices,
             "active_cuisine": cuisine_filter,
             "keyword": keyword,
+            "price_range": price_range,
+            "min_rating": min_rating,
+            "saved_listing_ids": _saved_listing_ids(request.user),
         },
     )
 
@@ -219,5 +272,11 @@ def nearby_listings(request):
     return render(
         request,
         "vendors/nearby_listings.html",
-        {"results": results, "error": error, "user_lat": user_lat, "user_lng": user_lng},
+        {
+            "results": results,
+            "error": error,
+            "user_lat": user_lat,
+            "user_lng": user_lng,
+            "saved_listing_ids": _saved_listing_ids(request.user),
+        },
     )

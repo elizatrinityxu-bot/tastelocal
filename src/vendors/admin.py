@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Listing, ListingImage, Vendor
+from .models import Listing, ListingImage, ListingStop, Vendor
 
 
 def approve_vendors(modeladmin, request, queryset):
@@ -23,6 +23,12 @@ class ListingImageInline(admin.TabularInline):
     extra = 1
 
 
+class ListingStopInline(admin.TabularInline):
+    model = ListingStop
+    extra = 1
+    fields = ("stop_order", "title", "description")
+
+
 @admin.register(Vendor)
 class VendorAdmin(admin.ModelAdmin):
     list_display = ("name", "user", "is_approved", "created_at")
@@ -36,7 +42,7 @@ class ListingAdmin(admin.ModelAdmin):
     list_display = ("title", "vendor", "price", "duration", "availability")
     list_filter = ("availability", "cuisine_type")
     search_fields = ("title", "vendor__name")
-    inlines = [ListingImageInline]
+    inlines = [ListingImageInline, ListingStopInline]
 
 
 @admin.register(ListingImage)

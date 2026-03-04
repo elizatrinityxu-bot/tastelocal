@@ -14,6 +14,9 @@
   {% elif from_page == "itineraries" %}
     <a href="{% url 'my_itineraries' %}"
        class="text-secondary small">&larr; Back to My Itineraries</a>
+  {% elif from_page == "wishlist" %}
+    <a href="{% url 'my_wishlist' %}"
+       class="text-secondary small">&larr; Back to Saved Experiences</a>
   {% else %}
     <a href="{% url 'browse_listings' %}"
        class="text-secondary small"
@@ -32,8 +35,10 @@
              style="max-height: 420px; object-fit: cover;"
              alt="{{ listing.title }}">
       {% else %}
-        <div class="rounded-3 d-flex align-items-center justify-content-center bg-light"
-             style="height: 320px; color: var(--secondary); font-size: 3rem;">&#127869;</div>
+        <img src="{% static 'images/experiences/hawker-centre-tour.png' %}"
+             class="img-fluid rounded-3 w-100"
+             style="max-height: 420px; object-fit: cover;"
+             alt="{{ listing.title }}">
       {% endif %}
     {% endwith %}
   </div>
@@ -45,8 +50,103 @@
       {{ listing.get_cuisine_type_display }}
     </span>
 
-    <h1 class="h3 fw-bold mb-1" style="color: var(--text-primary);">{{ listing.title }}</h1>
-    <p class="mb-3" style="color: var(--secondary);">by {{ listing.vendor.name }}</p>
+    <div class="d-flex align-items-start gap-2 mb-1">
+      <h1 class="h3 fw-bold mb-0 flex-grow-1" style="color: var(--text-primary);">{{ listing.title }}</h1>
+
+      <!-- Share dropdown -->
+      <div class="dropdown flex-shrink-0 mt-1">
+        <button class="btn share-btn"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                aria-label="Share this experience">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+          Share
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end share-menu">
+          <li>
+            <a id="shareFacebook" class="dropdown-item share-menu-item" href="#"
+               target="_blank" rel="noopener noreferrer">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+              </svg>
+              Facebook
+            </a>
+          </li>
+          <li>
+            <a id="shareWhatsapp" class="dropdown-item share-menu-item" href="#"
+               target="_blank" rel="noopener noreferrer">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/>
+                <path d="M11.5 2C6.261 2 2 6.261 2 11.5c0 1.822.518 3.524 1.413 4.97L2 22l5.648-1.39A9.47 9.47 0 0 0 11.5 21C16.739 21 21 16.739 21 11.5S16.739 2 11.5 2z"/>
+              </svg>
+              WhatsApp
+            </a>
+          </li>
+          <li><hr class="dropdown-divider my-1"></li>
+          <li>
+            <button id="copyLinkBtn" class="dropdown-item share-menu-item w-100 text-start"
+                    type="button">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+              Copy Link
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Vendor host card -->
+    <div class="vendor-host-card mb-3">
+      <div class="vendor-host-avatar" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <div class="vendor-host-info">
+        <p class="mb-0">
+          <span class="vendor-host-label">Hosted by</span>
+          <span class="vendor-host-name">{{ listing.vendor.name }}</span>
+        </p>
+        {% if listing.vendor.description %}
+          <p class="vendor-host-desc mb-0">{{ listing.vendor.description|truncatechars:150 }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Quick Facts -->
+    <div class="quick-facts mb-4">
+      {% if avg_rating %}
+        <span class="quick-fact">
+          <span class="quick-fact-icon">&#11088;</span>
+          <span class="quick-fact-text">{{ avg_rating }} ({{ review_count }} review{{ review_count|pluralize }})</span>
+        </span>
+      {% endif %}
+      <span class="quick-fact">
+        <span class="quick-fact-icon">&#9201;</span>
+        <span class="quick-fact-text">{{ listing.duration }} min</span>
+      </span>
+      <span class="quick-fact">
+        <span class="quick-fact-icon">&#127869;</span>
+        <span class="quick-fact-text">{{ listing.get_cuisine_type_display }}</span>
+      </span>
+      {% if listing.vendor.address %}
+        <span class="quick-fact">
+          <span class="quick-fact-icon">&#128205;</span>
+          <span class="quick-fact-text">{{ listing.vendor.address|truncatechars:45 }}</span>
+        </span>
+      {% endif %}
+    </div>
 
     <div class="listing-description text-secondary mb-4">{{ listing.description|safe }}</div>
 
@@ -55,7 +155,7 @@
       <div class="col">
         <div class="p-3 rounded-3 bg-light">
           <div class="fw-bold" style="color: var(--primary); font-size: 1.25rem;">
-            ${{ listing.price }}
+            S${{ listing.price }}
           </div>
           <div class="small text-secondary">per person</div>
         </div>
@@ -94,6 +194,29 @@
 
   </div>
 </div>
+
+<!-- ── Tour Itinerary ────────────────────────────────────────────── -->
+{% with stops=listing.stops.all %}
+{% if stops %}
+<hr class="my-5">
+<section class="mb-5">
+  <h2 class="h5 fw-bold mb-4" style="color: var(--text-primary);">Tour Itinerary</h2>
+  <ol class="itinerary-list">
+    {% for stop in stops %}
+      <li class="itinerary-stop">
+        <div class="itinerary-stop-number">{{ stop.stop_order }}</div>
+        <div class="itinerary-stop-body">
+          <p class="itinerary-stop-title">{{ stop.title }}</p>
+          {% if stop.description %}
+            <p class="itinerary-stop-desc">{{ stop.description }}</p>
+          {% endif %}
+        </div>
+      </li>
+    {% endfor %}
+  </ol>
+</section>
+{% endif %}
+{% endwith %}
 
 <!-- ── Reviews ──────────────────────────────────────────────────────── -->
 <hr class="my-5">
@@ -229,8 +352,97 @@
 
 </section>
 
+<!-- ── Similar Experiences ──────────────────────────────────────────── -->
+{% if similar %}
+<hr class="my-5">
+<section class="mb-5">
+  <h2 class="section-heading mb-4">Similar Experiences</h2>
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for item in similar %}
+      <div class="col">
+        <div class="card h-100 position-relative">
+
+          <!-- Image -->
+          <div class="card-img-wrap">
+          {% with img=item.images.all|first %}
+            {% if img %}
+              <img src="{% static img.image.name %}"
+                   class="listing-card-img"
+                   alt="{{ item.title }}">
+            {% else %}
+              <img src="{% static 'images/experiences/hawker-centre-tour.png' %}"
+                   class="listing-card-img"
+                   alt="{{ item.title }}">
+            {% endif %}
+          {% endwith %}
+          </div>
+
+          <!-- Card body -->
+          <div class="card-body d-flex flex-column">
+            <span class="cuisine-tag">{{ item.get_cuisine_type_display }}</span>
+            <h3 class="listing-card-title">{{ item.title }}</h3>
+            <p class="listing-card-vendor">{{ item.vendor.name }}</p>
+            {% if item.avg_rating %}
+              <p class="listing-card-rating mb-1">
+                &#11088; {{ item.avg_rating|floatformat:1 }}
+              </p>
+            {% endif %}
+            <div class="d-flex justify-content-between align-items-center mt-auto">
+              <div>
+                <div class="listing-card-price">S${{ item.price|floatformat:0 }}</div>
+                <div class="listing-card-per-person">per person</div>
+              </div>
+              <span class="listing-card-duration">&#128338; {{ item.duration }} min</span>
+            </div>
+          </div>
+
+          <!-- Stretched link -->
+          <a href="{% url 'listing_detail' item.id %}"
+             class="stretched-link"
+             aria-label="View {{ item.title }}"></a>
+
+          <!-- CTA -->
+          <div class="card-footer bg-transparent border-0 pb-3 px-3"
+               style="position: relative; z-index: 2;">
+            <a href="{% url 'listing_detail' item.id %}"
+               class="btn btn-primary w-100">View Details</a>
+          </div>
+
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<div id="copyToast" class="copy-toast" aria-live="polite"></div>
+
 <script>
 (function () {
+  // ── Share button ──────────────────────────────────────────────
+  var shareUrl = window.location.origin + window.location.pathname;
+  var fbLink   = document.getElementById('shareFacebook');
+  var waLink   = document.getElementById('shareWhatsapp');
+  var copyBtn  = document.getElementById('copyLinkBtn');
+  var toast    = document.getElementById('copyToast');
+
+  if (fbLink) fbLink.href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl);
+  if (waLink) waLink.href = 'https://wa.me/?text=' + encodeURIComponent(shareUrl);
+
+  if (copyBtn && toast) {
+    copyBtn.addEventListener('click', function () {
+      navigator.clipboard.writeText(shareUrl).then(function () {
+        toast.textContent = 'Link copied!';
+        toast.classList.add('show');
+        setTimeout(function () { toast.classList.remove('show'); }, 2500);
+      }).catch(function () {
+        toast.textContent = 'Copy failed — please copy from the address bar.';
+        toast.classList.add('show');
+        setTimeout(function () { toast.classList.remove('show'); }, 3000);
+      });
+    });
+  }
+
   // ── Review carousel indicator sync ───────────────────────────
   ['reviewCarouselDesktop', 'reviewCarouselMobile'].forEach(function (id) {
     var el = document.getElementById(id);

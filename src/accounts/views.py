@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
 from bookings.models import Booking
+from core.models import WishlistItem
 from itinerary.models import Itinerary
 from reviews.models import Review
 
@@ -43,6 +44,7 @@ def tourist_dashboard(request):
     booking_count = Booking.objects.filter(tourist=user).count()
     review_count = Review.objects.filter(tourist=user).count()
     itinerary_count = Itinerary.objects.filter(tourist=user).count()
+    wishlist_count = WishlistItem.objects.filter(user=user).count()
     return render(
         request,
         "accounts/tourist_dashboard.html",
@@ -52,5 +54,6 @@ def tourist_dashboard(request):
             "booking_count": booking_count,
             "review_count": review_count,
             "itinerary_count": itinerary_count,
+            "wishlist_count": wishlist_count,
         },
     )

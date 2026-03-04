@@ -30,10 +30,11 @@
           <th>Vendor Name</th>
           <th>Owner</th>
           <th>Cuisine</th>
+          <th>Listings</th>
           <th>Address</th>
-          <th>Approved</th>
-          <th>Active</th>
-          <th>Joined</th>
+          <th>Approval</th>
+          <th>Status</th>
+          <th>Applied On</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -44,12 +45,15 @@
             <td class="fw-semibold">{{ vendor.name }}</td>
             <td>{{ vendor.user.get_full_name|default:vendor.user.username }}</td>
             <td>{{ vendor.get_cuisine_types_display }}</td>
+            <td class="{% if not vendor.listing_count %}text-secondary{% endif %}">
+              {{ vendor.listing_count }} listing{{ vendor.listing_count|pluralize }}
+            </td>
             <td class="text-secondary" style="max-width: 180px; font-size: 0.85rem;">
               {{ vendor.address|truncatechars:50 }}
             </td>
             <td>
               {% if vendor.is_approved %}
-                <span class="badge booking-status-confirmed">Yes</span>
+                <span class="badge booking-status-confirmed">Approved</span>
               {% else %}
                 <span class="badge booking-status-pending">Pending</span>
               {% endif %}
@@ -58,24 +62,33 @@
               {% if vendor.is_active %}
                 <span class="badge booking-status-confirmed">Active</span>
               {% else %}
-                <span class="badge booking-status-cancelled">Inactive</span>
+                <span class="badge booking-status-cancelled">Deactivated</span>
               {% endif %}
             </td>
             <td class="text-secondary">{{ vendor.created_at|date:"j M Y" }}</td>
             <td>
-              {% if vendor.is_active %}
-                <form method="post" action="{% url 'admin_vendor_action' vendor.id %}">
-                  {% csrf_token %}
-                  <input type="hidden" name="action" value="deactivate">
-                  <button type="submit" class="btn btn-sm btn-outline-danger">Deactivate</button>
-                </form>
-              {% else %}
-                <form method="post" action="{% url 'admin_vendor_action' vendor.id %}">
-                  {% csrf_token %}
-                  <input type="hidden" name="action" value="activate">
-                  <button type="submit" class="btn btn-sm btn-outline-success">Activate</button>
-                </form>
-              {% endif %}
+              <div class="d-flex gap-1 flex-wrap">
+                {% if not vendor.is_approved %}
+                  <form method="post" action="{% url 'admin_vendor_action' vendor.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="approve">
+                    <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                  </form>
+                {% endif %}
+                {% if vendor.is_active %}
+                  <form method="post" action="{% url 'admin_vendor_action' vendor.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="deactivate">
+                    <button type="submit" class="btn btn-sm btn-danger">Deactivate</button>
+                  </form>
+                {% else %}
+                  <form method="post" action="{% url 'admin_vendor_action' vendor.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="activate">
+                    <button type="submit" class="btn btn-sm btn-outline-success">Reactivate</button>
+                  </form>
+                {% endif %}
+              </div>
             </td>
           </tr>
         {% endfor %}
