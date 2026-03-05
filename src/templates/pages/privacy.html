@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Privacy Policy — TasteLocal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+
+    <h1 class="mb-1">Privacy Policy</h1>
+    <p class="text-secondary mb-5">Last updated: 1 March 2026</p>
+
+    <section class="mb-4">
+      <h2 class="h5 fw-semibold mb-2">1. Introduction</h2>
+      <p class="text-secondary">
+        TasteLocal Pte. Ltd. ("we", "us", "our") is committed to protecting your personal data.
+        This Privacy Policy explains what data we collect, how we use it, and your rights under
+        Singapore's Personal Data Protection Act 2012 (PDPA).
+      </p>
+    </section>
+
+    <section class="mb-4">
+      <h2 class="h5 fw-semibold mb-2">2. Data We Collect</h2>
+      <ul class="text-secondary">
+        <li><strong>Account data</strong> — name, email address, and password (hashed) when you register.</li>
+        <li><strong>Booking data</strong> — experience details, dates, guest counts, and payment confirmation records.</li>
+        <li><strong>Review data</strong> — ratings and written reviews you submit.</li>
+        <li><strong>Geolocation data</strong> — your device's latitude and longitude, collected only when you use
+          the "Explore Nearby Experiences" feature and only with your explicit browser permission.
+          Location data is used solely to display nearby listings and is not stored on our servers.</li>
+        <li><strong>Usage data</strong> — page views, search queries, and click events collected via server
+          logs to improve the platform.</li>
+      </ul>
+    </section>
+
+    <section class="mb-4">
+      <h2 class="h5 fw-semibold mb-2">3. How We Use Your Data</h2>
+      <ul class="text-secondary">
+        <li>To create and manage your account.</li>
+        <li>To process and confirm bookings.</li>
+        <li>To communicate booking updates, receipts, and service announcements.</li>
+        <li>To display personalised experience recommendations.</li>
+        <li>To improve platform features based on aggregated usage patterns.</li>
+        <li>To comply with legal obligations.</li>
+      </ul>
+    </section>
+
+    <section class="mb-4">
+      <h2 class="h5 fw-semibold mb-2">4. Data Sharing</h2>
+      <p class="text-secondary">
+        We do not sell your personal data. We share data only as necessary to deliver our services:
+      </p>
+      <ul class="text-secondary">
+        <li><strong>Hosts</strong> receive your name and booking details to prepare for your experience.</li>
+        <li><strong>Payment processors</strong> receive payment card data to process transactions. TasteLocal does not store full card numbers.</li>
+        <li><strong>Service providers</strong> (e.g. email delivery, cloud hosting) operate under data processing agreements.</li>
+      </ul>
+    </section>
+
+    <section class="mb-4">
+      <h2 class="h5 fw-semibold mb-2">5. Geolocation</h2>
+      <p class="text-secondary">
+        The "Explore Nearby Experiences" button requests your browser's geolocation permission.
+        This is entirely optional. If you decline, you can still browse all experiences manually.
+        Coordinates passed to the nearby search are used only to compute distances in the current
+        request and are not logged or stored.
+      </p>
+    </section>
+
+    <section class="mb-4">
+      <h2 class="h5 fw-semibold mb-2">6. Cookies</h2>
+      <p class="text-secondary">
+        TasteLocal uses session cookies to keep you logged in and CSRF tokens to protect form
+        submissions. We do not use third-party advertising cookies.
+      </p>
+    </section>
+
+    <section class="mb-4">
+      <h2 class="h5 fw-semibold mb-2">7. Data Retention</h2>
+      <p class="text-secondary">
+        Account data is retained while your account is active. Booking records are kept for 7 years
+        for financial compliance purposes. You may request deletion of your account at any time;
+        we will anonymise or delete personal data within 30 days subject to legal retention obligations.
+      </p>
+    </section>
+
+    <section class="mb-4">
+      <h2 class="h5 fw-semibold mb-2">8. Your Rights</h2>
+      <p class="text-secondary">
+        Under the PDPA you have the right to access, correct, and withdraw consent for the use of
+        your personal data. To exercise these rights, contact us at
+        <a href="{% url 'page_contact' %}">our contact page</a>.
+      </p>
+    </section>
+
+    <section class="mb-5">
+      <h2 class="h5 fw-semibold mb-2">9. Changes to This Policy</h2>
+      <p class="text-secondary">
+        We may update this Privacy Policy periodically. Material changes will be notified by email
+        to registered users. Continued use of TasteLocal after notification constitutes acceptance.
+      </p>
+    </section>
+
+    <p class="text-secondary small">
+      Questions about your data? <a href="{% url 'page_contact' %}">Contact us</a>.
+    </p>
+
+  </div>
+</div>
+{% endblock %}

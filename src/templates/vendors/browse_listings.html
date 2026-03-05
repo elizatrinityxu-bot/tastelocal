@@ -1,6 +1,13 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<link rel="stylesheet" href="{% static 'css/map.css' %}">
+{% endblock %}
+
 {% block title %}
   {% if active_cuisine %}{{ active_cuisine|capfirst }} Experiences{% else %}All Experiences{% endif %} — TasteLocal
 {% endblock %}
@@ -89,11 +96,32 @@
   {% endfor %}
 </div>
 
+<!-- View toggle ----------------------------------------------------------- -->
+<div class="d-flex justify-content-end mb-3">
+  <div class="btn-group" role="group" aria-label="View toggle">
+    <button type="button" class="btn btn-secondary btn-sm" id="btn-list-view">
+      &#9776; List View
+    </button>
+    <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-map-view">
+      &#128506; Map View
+    </button>
+  </div>
+</div>
+
 <!-- Results --------------------------------------------------------------- -->
+<div id="results-wrapper">
+<div id="cards-col">
 {% if listings %}
-  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+  <div id="cards-grid" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     {% for listing in listings %}
-      <div class="col">
+      <div class="col listing-col"
+           data-listing-id="{{ listing.id }}"
+           data-lat="{{ listing.vendor.latitude }}"
+           data-lng="{{ listing.vendor.longitude }}"
+           data-title="{{ listing.title|escapejs }}"
+           data-cuisine="{{ listing.get_cuisine_type_display }}"
+           data-price="{{ listing.price|floatformat:0 }}"
+           data-url="{% url 'listing_detail' listing.id %}">
         <div class="card h-100 position-relative">
 
           <!-- Card image -->
@@ -170,4 +198,17 @@
     <a href="{% url 'browse_listings' %}" class="btn btn-secondary btn-sm">Clear filters</a>
   </div>
 {% endif %}
+</div><!-- /#cards-col -->
+
+<div id="map-panel" class="d-none">
+  <div id="map"></div>
+</div>
+
+</div><!-- /#results-wrapper -->
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="{% static 'js/map.js' %}"></script>
 {% endblock %}

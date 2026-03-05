@@ -38,3 +38,4 @@ def geocode_address(address: str) -> tuple[float, float]:
         )
 
     return location.latitude, location.longitude
+

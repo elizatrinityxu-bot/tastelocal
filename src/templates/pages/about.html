@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}About TasteLocal — Discover Singapore's Food Stories{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+
+    <h1 class="mb-1">About TasteLocal</h1>
+    <p class="text-secondary mb-5">Our mission, our story, our people.</p>
+
+    <!-- Mission -->
+    <section class="mb-5">
+      <h2 class="section-heading mb-3">Our Mission</h2>
+      <p>
+        TasteLocal exists to bridge the gap between curious travellers and the passionate local
+        hosts who know Singapore's food culture inside out. We believe that the best way to
+        understand a city is through its food — not from a tourist menu, but from a hawker stall
+        run by the same family for three generations, or a home kitchen where a grandmother still
+        grinds her own spice paste by hand.
+      </p>
+      <p>
+        Every experience on TasteLocal is designed, hosted, and led by vetted local guides and
+        vendors. We handle the booking logistics so hosts can focus on what they do best: sharing
+        extraordinary food and the stories behind it.
+      </p>
+    </section>
+
+    <!-- Values -->
+    <section class="mb-5">
+      <h2 class="section-heading mb-4">What We Stand For</h2>
+      <div class="row row-cols-1 row-cols-md-3 g-4">
+        <div class="col">
+          <div class="card h-100 feature-card text-center">
+            <div class="feature-icon">&#127981;</div>
+            <h3 class="feature-title">Authenticity</h3>
+            <p class="feature-body">Every listing is personally reviewed. No hotel restaurants, no tourist traps.</p>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card h-100 feature-card text-center">
+            <div class="feature-icon">&#129309;</div>
+            <h3 class="feature-title">Community</h3>
+            <p class="feature-body">We invest in local hosts, helping small food businesses grow sustainably.</p>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card h-100 feature-card text-center">
+            <div class="feature-icon">&#127758;</div>
+            <h3 class="feature-title">Sustainability</h3>
+            <p class="feature-body">We promote neighbourhood economies and reduce over-tourism in iconic spots.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Story -->
+    <section class="mb-5">
+      <h2 class="section-heading mb-3">Our Story</h2>
+      <p>
+        TasteLocal was founded in Singapore in 2024 by a team of food lovers who were frustrated
+        that visitors kept missing the best bites in the city. Armed with a shared Google Doc of
+        hidden hawker gems and a conviction that food tourism could be done better, we built the
+        first version of the platform in a weekend.
+      </p>
+      <p>
+        Today we partner with over 50 hosts across Singapore — from Michelin-starred hawker stall
+        owners to third-generation curry puff bakers — offering more than 200 curated experiences.
+      </p>
+    </section>
+
+    <div class="text-center pt-2 mb-5">
+      <a href="{% url 'browse_listings' %}" class="btn btn-primary px-5">Explore Experiences</a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

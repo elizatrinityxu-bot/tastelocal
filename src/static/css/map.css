@@ -1,0 +1,82 @@
+/* ── Map / List toggle layout ─────────────────────────────────────── */
+
+#results-wrapper {
+  display: block;
+}
+
+/* Two-column split when map mode is active */
+#results-wrapper.map-mode {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+/* Scrollable cards column */
+#results-wrapper.map-mode #cards-col {
+  width: 40%;
+  flex-shrink: 0;
+  height: 70vh;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+/* Force single-column card grid in map mode */
+#results-wrapper.map-mode #cards-grid .col {
+  flex: 0 0 100% !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Remove stretched-link overlay so card clicks reach our JS handler */
+#results-wrapper.map-mode .stretched-link::after {
+  display: none;
+}
+
+/* Map panel */
+#map-panel {
+  flex: 1 1 0;
+  position: sticky;
+  top: 1rem;
+}
+
+#map {
+  width: 100%;
+  height: 70vh;
+  border-radius: 0.5rem;
+  border: 1px solid #dee2e6;
+}
+
+/* Highlighted card */
+.listing-col.card-highlighted .card {
+  outline: 2px solid #E76F51;
+  box-shadow: 0 0 0 4px rgba(231, 111, 81, 0.2);
+}
+
+/* Map mode: cards clickable, cursor pointer */
+#results-wrapper.map-mode .listing-col {
+  cursor: pointer;
+}
+
+/* ── Mobile (<768 px): map stacks above cards ─────────────────────── */
+@media (max-width: 767px) {
+  #results-wrapper.map-mode {
+    flex-direction: column;
+  }
+
+  #map-panel {
+    width: 100%;
+    position: static;
+    order: -1;
+  }
+
+  #map {
+    height: 300px;
+  }
+
+  #results-wrapper.map-mode #cards-col {
+    width: 100%;
+    height: auto;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+}

@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}FAQs — TasteLocal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+
+    <h1 class="mb-1">Frequently Asked Questions</h1>
+    <p class="text-secondary mb-5">Quick answers to the questions we hear most often.</p>
+
+    <!-- Bookings -->
+    <section class="mb-5">
+      <h2 class="section-heading mb-4">Booking &amp; Payments</h2>
+      <div class="accordion" id="faqBookings">
+
+        <div class="accordion-item border mb-2 rounded">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed rounded" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#faq1">
+              How do I book an experience?
+            </button>
+          </h3>
+          <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqBookings">
+            <div class="accordion-body text-secondary">
+              Browse the listings, click on any experience you like, and hit <strong>Book Now</strong>.
+              Select your preferred date and number of guests, then confirm. You'll receive an
+              email confirmation immediately. A TasteLocal account is required to book.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item border mb-2 rounded">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed rounded" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#faq2">
+              What payment methods are accepted?
+            </button>
+          </h3>
+          <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqBookings">
+            <div class="accordion-body text-secondary">
+              TasteLocal accepts major credit and debit cards (Visa, Mastercard, Amex) as well as
+              PayNow for Singapore-based users. Payment is processed securely at the time of booking.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item border mb-2 rounded">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed rounded" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#faq3">
+              Can I cancel or reschedule a booking?
+            </button>
+          </h3>
+          <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqBookings">
+            <div class="accordion-body text-secondary">
+              Cancellations made more than 48 hours before the experience start time are fully
+              refunded. Cancellations within 48 hours may be subject to a cancellation fee at
+              the host's discretion. To reschedule, contact your host directly through the
+              booking details page.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item border mb-2 rounded">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed rounded" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#faq4">
+              Are prices shown per person or per group?
+            </button>
+          </h3>
+          <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqBookings">
+            <div class="accordion-body text-secondary">
+              All prices displayed on TasteLocal are <strong>per person</strong>. The total cost
+              is calculated at checkout based on the number of guests you select.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Experiences -->
+    <section class="mb-5">
+      <h2 class="section-heading mb-4">Experiences &amp; Hosts</h2>
+      <div class="accordion" id="faqExperiences">
+
+        <div class="accordion-item border mb-2 rounded">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed rounded" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#faq5">
+              How are hosts vetted?
+            </button>
+          </h3>
+          <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqExperiences">
+            <div class="accordion-body text-secondary">
+              Every host completes an application and an identity verification process before
+              their listing goes live. Our team personally reviews each experience to ensure it
+              meets our standards for authenticity, safety, and quality.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item border mb-2 rounded">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed rounded" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#faq6">
+              What languages are experiences offered in?
+            </button>
+          </h3>
+          <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqExperiences">
+            <div class="accordion-body text-secondary">
+              Most experiences are conducted in English. Some hosts also offer tours in Mandarin,
+              Malay, or Tamil — this is noted in the listing description. If you have a language
+              preference, contact the host before booking.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item border mb-2 rounded">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed rounded" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#faq7">
+              Can experiences cater to dietary restrictions?
+            </button>
+          </h3>
+          <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqExperiences">
+            <div class="accordion-body text-secondary">
+              Many hosts can accommodate vegetarian, vegan, halal, or gluten-free requirements
+              with advance notice. Check the listing description or message the host directly
+              before booking to confirm.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item border mb-2 rounded">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed rounded" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#faq8">
+              What happens if my host cancels?
+            </button>
+          </h3>
+          <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqExperiences">
+            <div class="accordion-body text-secondary">
+              If a host cancels your booking, you will receive a full refund automatically. We
+              will also notify you by email and, where possible, suggest comparable alternative
+              experiences on the same date.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="text-center pb-2 mb-4">
+      <p class="text-secondary">Still have questions?</p>
+      <a href="{% url 'page_contact' %}" class="btn btn-outline-secondary px-4">Contact Us</a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Become a Vendor — TasteLocal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+
+    <h1 class="mb-1">Host Food Experiences on TasteLocal</h1>
+    <p class="text-secondary mb-5">Turn your culinary passion into a thriving business.</p>
+
+    <!-- Hero benefits -->
+    <section class="mb-5">
+      <div class="row row-cols-1 row-cols-md-3 g-4">
+        <div class="col">
+          <div class="card h-100 feature-card text-center">
+            <div class="feature-icon">&#128176;</div>
+            <h3 class="feature-title">Earn on Your Terms</h3>
+            <p class="feature-body">Set your own prices and availability. Host as often or as rarely as you like.</p>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card h-100 feature-card text-center">
+            <div class="feature-icon">&#127760;</div>
+            <h3 class="feature-title">Global Reach</h3>
+            <p class="feature-body">Reach food lovers from around the world who are actively searching for authentic local experiences.</p>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card h-100 feature-card text-center">
+            <div class="feature-icon">&#128736;</div>
+            <h3 class="feature-title">Full Support</h3>
+            <p class="feature-body">We handle payments, booking management, and customer support so you can focus on your craft.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- What you can offer -->
+    <section class="mb-5">
+      <h2 class="section-heading mb-3">What Can You Host?</h2>
+      <ul class="list-unstyled">
+        {% for item in ""|ljust:"6" %}{% endfor %}
+      </ul>
+      <div class="row g-3">
+        {% for experience in experience_types %}
+          <div class="col-12 col-sm-6">
+            <div class="d-flex align-items-center gap-2">
+              <span style="color:var(--primary);">&#10003;</span>
+              <span>{{ experience }}</span>
+            </div>
+          </div>
+        {% empty %}
+          {% for label in "Guided hawker tours,Hands-on cooking classes,Home dining experiences,Cultural food trails,Market tours and tastings,Private dining events"|split:"," %}
+          {% endfor %}
+          <div class="col-12 col-sm-6"><div class="d-flex gap-2"><span style="color:var(--primary);">&#10003;</span> Guided hawker tours</div></div>
+          <div class="col-12 col-sm-6"><div class="d-flex gap-2"><span style="color:var(--primary);">&#10003;</span> Hands-on cooking classes</div></div>
+          <div class="col-12 col-sm-6"><div class="d-flex gap-2"><span style="color:var(--primary);">&#10003;</span> Home dining experiences</div></div>
+          <div class="col-12 col-sm-6"><div class="d-flex gap-2"><span style="color:var(--primary);">&#10003;</span> Cultural food trails</div></div>
+          <div class="col-12 col-sm-6"><div class="d-flex gap-2"><span style="color:var(--primary);">&#10003;</span> Market tours and tastings</div></div>
+          <div class="col-12 col-sm-6"><div class="d-flex gap-2"><span style="color:var(--primary);">&#10003;</span> Private dining events</div></div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- Requirements -->
+    <section class="mb-5">
+      <h2 class="section-heading mb-3">Who Can Apply?</h2>
+      <p>We welcome applications from anyone with a genuine passion for Singapore food culture — you don't need a commercial kitchen or a chef's qualification. You do need:</p>
+      <ul>
+        <li>A food experience that is genuinely unique or local</li>
+        <li>The ability to host guests safely and reliably</li>
+        <li>Good communication skills (English proficiency helps)</li>
+        <li>A Singapore-based operation</li>
+      </ul>
+    </section>
+
+    <!-- CTA -->
+    <div class="card p-4 text-center mb-5" style="background:var(--background);border:1px solid #e0dbd6;">
+      <h2 class="h4 mb-2">Ready to start hosting?</h2>
+      <p class="text-secondary mb-3">Applications are reviewed within 3 business days. We'll reach out to discuss your experience idea.</p>
+      <a href="{% url 'apply_vendor' %}" class="btn btn-primary px-5">Apply to Become a Host</a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

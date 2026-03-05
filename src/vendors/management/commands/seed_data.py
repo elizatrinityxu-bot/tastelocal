@@ -34,6 +34,19 @@ BOOKING_COUNT = 60
 REVIEW_COUNT = 100
 ITINERARY_COUNT = 10
 
+ITINERARY_NAMES = [
+    "Singapore Hawker Adventure",
+    "Little India Food Trail",
+    "Chinatown Street Food Walk",
+    "Kampong Glam Culinary Journey",
+    "Katong Heritage Food Tour",
+    "One Day Singapore Food Explorer",
+    "Geylang Night Market Trail",
+    "Tiong Bahru Cafe & Hawker Hop",
+    "East Coast Seafood Journey",
+    "Joo Chiat Peranakan Food Walk",
+]
+
 CUISINE_VALUES = CuisineType.values   # ['CHINESE', 'MALAY', ...]
 
 # ── Singapore bounding box ───────────────────────────────────────────────────
@@ -395,7 +408,7 @@ class Command(BaseCommand):
         for _ in range(ITINERARY_COUNT):
             itin = Itinerary.objects.create(
                 tourist=random.choice(tourists),
-                title=fake.sentence(nb_words=random.randint(4, 7)).rstrip("."),
+                title=random.choice(ITINERARY_NAMES),
                 date=fake.date_between(start_date="+1d", end_date="+120d"),
             )
             itineraries.append(itin)

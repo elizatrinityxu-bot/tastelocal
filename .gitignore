@@ -24,6 +24,11 @@ src/staticfiles/
 
 # Environment variables
 .env
+.env.*
+.env.local
+
+# Media uploads
+media/
 
 # IDE
 .vscode/
@@ -36,3 +41,7 @@ src/staticfiles/
 .coverage
 htmlcov/
 .pytest_cache/
+
+# Claude code local configuration
+.claude/
+settings.local.json

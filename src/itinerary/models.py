@@ -12,6 +12,11 @@ class Itinerary(models.Model):
     date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def save(self, *args, **kwargs):
+        if not self.title:
+            self.title = f"My Food Tour \u2013 {self.date.day} {self.date.strftime('%b %Y')}"
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.title
 

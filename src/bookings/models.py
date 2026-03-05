@@ -31,3 +31,4 @@ class Booking(models.Model):
 
     def __str__(self):
         return f"Booking {self.id} — {self.tourist} → {self.listing}"
+

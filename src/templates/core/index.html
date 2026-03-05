@@ -36,6 +36,9 @@
             <a href="{% url 'browse_listings' %}" class="btn btn-light btn-lg px-4 btn-hero-light">
               Explore Experiences
             </a>
+            <button type="button" class="btn btn-outline-light btn-lg px-4 js-nearby-btn">
+              &#128205; Explore Nearby Experiences
+            </button>
             {% if not user.is_authenticated %}
               <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg px-4">
                 Join Free
@@ -58,6 +61,9 @@
             <a href="{% url 'browse_listings' %}" class="btn btn-light btn-lg px-4 btn-hero-light">
               Explore Experiences
             </a>
+            <button type="button" class="btn btn-outline-light btn-lg px-4 js-nearby-btn">
+              &#128205; Explore Nearby Experiences
+            </button>
             {% if not user.is_authenticated %}
               <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg px-4">
                 Join Free
@@ -80,6 +86,9 @@
             <a href="{% url 'browse_listings' %}" class="btn btn-light btn-lg px-4 btn-hero-light">
               Explore Experiences
             </a>
+            <button type="button" class="btn btn-outline-light btn-lg px-4 js-nearby-btn">
+              &#128205; Explore Nearby Experiences
+            </button>
             {% if not user.is_authenticated %}
               <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg px-4">
                 Join Free
@@ -241,6 +250,12 @@
       </div>
     {% endfor %}
   </div>
+
+  <div class="text-center mt-4">
+    <a href="{% url 'browse_listings' %}" class="btn btn-outline-secondary px-4">
+      View All Experiences &rarr;
+    </a>
+  </div>
 </section>
 {% endif %}
 
@@ -388,4 +403,8 @@
 </section>
 {% endif %}
 
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/location.js' %}"></script>
 {% endblock %}

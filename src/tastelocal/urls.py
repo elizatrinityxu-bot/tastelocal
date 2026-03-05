@@ -26,5 +26,6 @@ urlpatterns = [
     path("reviews/", include("reviews.urls")),
     path("itinerary/", include("itinerary.urls")),
     path("analytics/", include("analytics.urls")),
+    path("pages/", include("pages.urls")),
     path("", include("core.urls")),
 ]

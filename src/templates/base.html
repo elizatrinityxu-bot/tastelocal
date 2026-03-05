@@ -111,8 +111,8 @@
         <div class="col-6 col-md-3">
           <p class="footer-heading">Company</p>
           <ul class="footer-links">
-            <li><a href="#">About TasteLocal</a></li>
-            <li><a href="#">How It Works</a></li>
+            <li><a href="{% url 'page_about' %}">About TasteLocal</a></li>
+            <li><a href="{% url 'page_how_it_works' %}">How It Works</a></li>
             <li><a href="#">Careers</a></li>
             <li><a href="#">Blog</a></li>
           </ul>
@@ -160,24 +160,24 @@
           <ul class="footer-links">
             <li><a href="{% url 'browse_listings' %}">Browse Experiences</a></li>
             <li><a href="{% url 'browse_listings' %}">Popular Cuisines</a></li>
-            <li><a href="{% url 'apply_vendor' %}">Become a Vendor</a></li>
+            <li><a href="{% url 'page_become_vendor' %}">Become a Vendor</a></li>
           </ul>
         </div>
 
         <div class="col-6 col-md-3">
           <p class="footer-heading">Support</p>
           <ul class="footer-links">
-            <li><a href="#">Help Center</a></li>
-            <li><a href="#">FAQs</a></li>
-            <li><a href="#">Contact Us</a></li>
+            <li><a href="{% url 'page_faq' %}">Help Center</a></li>
+            <li><a href="{% url 'page_faq' %}">FAQs</a></li>
+            <li><a href="{% url 'page_contact' %}">Contact Us</a></li>
           </ul>
         </div>
 
         <div class="col-6 col-md-3">
           <p class="footer-heading">Legal</p>
           <ul class="footer-links">
-            <li><a href="#">Terms of Service</a></li>
-            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="{% url 'page_terms' %}">Terms of Service</a></li>
+            <li><a href="{% url 'page_privacy' %}">Privacy Policy</a></li>
           </ul>
         </div>
 
