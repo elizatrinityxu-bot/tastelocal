@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "itinerary",
     "analytics",
     "core",
+    "listings",
 ]
 
 MIDDLEWARE = [

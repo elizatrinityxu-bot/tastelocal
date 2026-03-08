@@ -10,46 +10,80 @@
 <h1 class="page-heading mb-4">My Itineraries</h1>
 
 {% if itineraries %}
-  <div class="row row-cols-1 row-cols-md-2 g-3">
-    {% for itin in itineraries %}
-    <div class="col">
-      <div class="card h-100 p-3">
+  {% for itin in itineraries %}
+  <div class="card mb-4 p-4">
 
-        <div class="d-flex justify-content-between align-items-start mb-2">
-          <h2 class="h6 mb-0 fw-semibold" style="color: var(--text-primary);">{{ itin.title }}</h2>
-          <span class="text-secondary small ms-3 flex-shrink-0">{{ itin.date|date:"j M Y" }}</span>
+    <!-- Itinerary header -->
+    <div class="d-flex justify-content-between align-items-center mb-1">
+      <h2 class="h5 mb-0 fw-semibold" style="color: var(--text-primary);">{{ itin.title }}</h2>
+      <span class="badge rounded-pill ms-3 flex-shrink-0"
+            style="background: var(--secondary); color: #fff; font-weight: 500;">
+        {{ itin.date|date:"j M Y" }}
+      </span>
+    </div>
+    {% with stop_count=itin.annotated_stops|length %}
+    <p class="text-secondary small mb-4">{{ stop_count }} stop{{ stop_count|pluralize }}</p>
+    {% endwith %}
+
+    {% if itin.annotated_stops %}
+    <div class="itin-timeline">
+
+      <!-- START -->
+      <div class="itin-node itin-node--cap">
+        <div class="itin-node-cap-label" style="color: var(--secondary);">Start</div>
+      </div>
+
+      {% for stop in itin.annotated_stops %}
+      <div class="itin-node{% if stop.overlaps %} itin-node--overlap{% endif %}">
+
+        <!-- Time range -->
+        <div class="itin-node-time">
+          {% if stop.start_dt %}
+            {{ stop.start_dt|time:"H:i" }} – {{ stop.end_dt|time:"H:i" }}
+          {% else %}
+            Time not set
+          {% endif %}
+          {% if stop.overlaps %}
+            <span class="itin-overlap-warn" title="This activity overlaps with an adjacent booking">&#9888;</span>
+          {% endif %}
         </div>
 
-        {% with stop_count=itin.stops.count %}
-        <p class="text-secondary small mb-2">
-          {{ stop_count }} stop{{ stop_count|pluralize }}
-        </p>
-        {% endwith %}
+        <!-- Experience name -->
+        <div class="itin-node-title">
+          <a href="{% url 'listing_detail' stop.listing.id %}?from=itineraries"
+             class="itinerary-stop-link">
+            {{ stop.listing.title }}
+          </a>
+        </div>
 
-        {% if itin.stops.all %}
-          <ul class="list-unstyled mb-0 itinerary-stop-list">
-            {% for stop in itin.stops.all %}
-              <li class="py-1 border-bottom" style="border-color: #f0f0f0 !important;">
-                <span class="me-2 fw-semibold" style="color: var(--primary);">{{ stop.visit_order }}.</span>
-                <a href="{% url 'listing_detail' stop.listing.id %}?from=itineraries"
-                   class="itinerary-stop-link">
-                  {{ stop.listing.title }}
-                </a>
-              </li>
-            {% endfor %}
-          </ul>
-        {% endif %}
+        <!-- Meta: duration + price + notes -->
+        <div class="itin-node-meta">
+          &#128337; {{ stop.listing.duration }} min
+          &mdash; S${{ stop.listing.price }} / person
+          {% if stop.notes %}&mdash; {{ stop.notes|truncatechars:60 }}{% endif %}
+        </div>
 
       </div>
+      {% endfor %}
+
+      <!-- END -->
+      <div class="itin-node itin-node--cap itin-node--end">
+        <div class="itin-node-cap-label">End &mdash; Return to starting point</div>
+      </div>
+
     </div>
-    {% endfor %}
+    {% else %}
+    <p class="text-secondary small">No stops added to this itinerary yet.</p>
+    {% endif %}
+
   </div>
+  {% endfor %}
 
 {% else %}
   <div class="text-center py-5">
     <div style="font-size: 3rem; margin-bottom: 1rem;">&#128205;</div>
     <h2 class="h5 mb-2" style="color: var(--text-primary);">No itineraries yet</h2>
-    <p class="text-secondary mb-4">You haven't planned any food journeys. Browse experiences and start building your itinerary!</p>
+    <p class="text-secondary mb-4">Book an experience and it will automatically appear here as your itinerary.</p>
     <a href="{% url 'browse_listings' %}" class="btn btn-primary">Browse Experiences</a>
   </div>
 {% endif %}

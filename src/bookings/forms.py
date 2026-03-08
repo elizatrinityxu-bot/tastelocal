@@ -15,6 +15,10 @@ class BookingForm(forms.ModelForm):
             ),
             "notes": forms.Textarea(attrs={"rows": 3}),
         }
+        error_messages = {
+            "booking_date": {"required": "Please select a booking date and time."},
+            "party_size":   {"required": "Please enter the number of guests."},
+        }
 
     def __init__(self, *args, listing=None, **kwargs):
         super().__init__(*args, **kwargs)

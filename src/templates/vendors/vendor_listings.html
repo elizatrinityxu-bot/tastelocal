@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}My Listings — TasteLocal{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <a href="{% url 'vendor_dashboard' %}" class="text-secondary small">&larr; Back to Dashboard</a>
+</div>
+
+<h1 class="page-heading mb-4">My Listings</h1>
+
+{% if listings %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle booking-table">
+      <thead>
+        <tr>
+          <th>Experience</th>
+          <th>Cuisine</th>
+          <th>Price (SGD)</th>
+          <th>Duration</th>
+          <th>Max Guests</th>
+          <th>Available</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for listing in listings %}
+          <tr>
+            <td>
+              <a href="{% url 'listing_detail' listing.id %}" class="booking-listing-link">
+                {{ listing.title }}
+              </a>
+            </td>
+            <td>{{ listing.get_cuisine_type_display }}</td>
+            <td>${{ listing.price }}</td>
+            <td>{{ listing.duration }} min</td>
+            <td>{{ listing.max_capacity }}</td>
+            <td>
+              {% if listing.availability %}
+                <span class="badge booking-status-confirmed">Yes</span>
+              {% else %}
+                <span class="badge booking-status-cancelled">No</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="d-flex gap-1">
+                <a href="{% url 'listing_edit' listing.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        data-bs-toggle="modal"
+                        data-bs-target="#deleteListingModal{{ listing.id }}">
+                  Delete
+                </button>
+              </div>
+
+              <!-- Delete confirmation modal -->
+              <div class="modal fade" id="deleteListingModal{{ listing.id }}" tabindex="-1"
+                   aria-labelledby="deleteListingModalLabel{{ listing.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content">
+                    <div class="modal-header border-0 pb-0">
+                      <h5 class="modal-title" id="deleteListingModalLabel{{ listing.id }}">Delete Listing</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body pt-2">
+                      <p class="mb-1">Are you sure you want to delete this listing?</p>
+                      <p class="text-secondary small mb-0">{{ listing.title }}</p>
+                      <p class="text-danger small mb-0 mt-2">This action cannot be undone.</p>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <form method="post" action="{% url 'listing_delete' listing.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Delete Listing</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+{% else %}
+  <div class="text-center py-5">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">&#127869;</div>
+    <h2 class="h5 mb-2" style="color: var(--text-primary);">No listings yet</h2>
+    <p class="text-secondary mb-0">You haven't added any experiences yet.</p>
+  </div>
+{% endif %}
+
+{% endblock %}

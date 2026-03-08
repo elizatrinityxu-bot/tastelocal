@@ -28,8 +28,12 @@
             <td>{{ booking.tourist.username }}</td>
             <td>{{ booking.booking_date }}</td>
             <td>{{ booking.party_size }}</td>
-            <td>{{ booking.get_status_display }}</td>
-            <td>{{ booking.notes|default:"—" }}</td>
+            <td>
+              <span class="badge booking-status-{{ booking.status|lower|default:'pending' }}">
+                {{ booking.get_status_display|default:"Pending" }}
+              </span>
+            </td>
+            <td>{{ booking.notes|truncatechars:80|default:"—" }}</td>
             <td>
               {% if booking.status == "PENDING" %}
                 <form method="post" action="{% url 'booking_update_status' booking.id %}" style="display:inline">

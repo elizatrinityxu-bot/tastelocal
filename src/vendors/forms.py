@@ -1,6 +1,21 @@
 from django import forms
 
-from .models import Vendor
+from .models import Listing, Vendor
+
+
+class ListingForm(forms.ModelForm):
+    class Meta:
+        model = Listing
+        fields = ["title", "description", "price", "duration", "max_capacity", "cuisine_type", "availability"]
+        widgets = {
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"rows": 4, "class": "form-control"}),
+            "price": forms.NumberInput(attrs={"class": "form-control"}),
+            "duration": forms.NumberInput(attrs={"class": "form-control"}),
+            "max_capacity": forms.NumberInput(attrs={"class": "form-control"}),
+            "cuisine_type": forms.Select(attrs={"class": "form-select"}),
+            "availability": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
 
 
 class VendorApplicationForm(forms.ModelForm):

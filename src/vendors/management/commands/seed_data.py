@@ -9,8 +9,8 @@ a single transaction — an error rolls everything back cleanly.
 """
 
 import random
+from datetime import datetime, time
 from decimal import Decimal
-
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
@@ -29,10 +29,19 @@ fake = Faker()
 SEED_PREFIX = "seed_"
 VENDOR_COUNT = 10
 TOURIST_COUNT = 10
-LISTING_COUNT = 50
+LISTING_COUNT = 38
 BOOKING_COUNT = 60
 REVIEW_COUNT = 100
 ITINERARY_COUNT = 10
+
+# Approved booking time slots — vendor operating hours 09:00–21:00
+BOOKING_TIME_SLOTS = [
+    time(9, 0), time(9, 30), time(10, 0), time(10, 30),
+    time(11, 30), time(12, 0), time(12, 30), time(13, 0),
+    time(14, 0), time(14, 30), time(15, 0), time(15, 30),
+    time(18, 0), time(18, 30), time(19, 0), time(19, 30),
+    time(20, 0), time(20, 30),
+]
 
 ITINERARY_NAMES = [
     "Singapore Hawker Adventure",
@@ -74,105 +83,109 @@ SG_AREAS = [
     "Dempsey Hill", "Holland Village", "Clarke Quay", "Boat Quay",
 ]
 
-# Tourism food experience names keyed by cuisine type
-EXPERIENCE_NAMES = {
-    "CHINESE": [
-        "Chinatown Night Food Trail",
-        "Traditional Dim Sum Morning Experience",
-        "Heritage Kopitiam Culture Tour",
-        "Teochew Hawker Heritage Walk",
-        "Cantonese Wok Skills Masterclass",
-        "Chinatown Breakfast Discovery",
-        "Bak Kut Teh Heritage Journey",
-        "Chinese New Year Feast Experience",
-        "Old Hokkien Street Food Trail",
-        "Roast Meats & Rice Culture Walk",
-    ],
-    "MALAY": [
-        "Kampong Malay Culinary Journey",
-        "Heritage Kampong Food Experience",
-        "Traditional Nasi Lemak Cooking Class",
-        "Geylang Supper Tour Experience",
-        "Authentic Rendang Masterclass",
-        "Malay Heritage Trail & Tasting",
-        "Village Warung Culture Experience",
-        "Rempah Spice Blending Workshop",
-        "Kampong Glam Food & Culture Walk",
-        "Malay Wedding Feast Experience",
-    ],
-    "INDIAN": [
-        "Little India Street Food Walking Tour",
-        "Banana Leaf Rice Cultural Experience",
-        "Spice Route Discovery Walk",
-        "South Indian Cooking Masterclass",
-        "Tekka Market Food Heritage Tour",
-        "Tiffin Carrier Lunch Experience",
-        "Curry House Cooking Workshop",
-        "Little India Breakfast Immersion",
-        "Vegetarian Feast Cultural Journey",
-        "Mughlai Biryani Cooking Class",
-    ],
-    "WESTERN": [
-        "Colonial Heritage Dining Experience",
-        "Farm-to-Table Culinary Visit",
-        "Hotel Heritage Afternoon Tea Tour",
-        "Private Chef Garden Dinner",
-        "Sunday Brunch Discovery Experience",
-        "Craft Brewery Food Pairing Tour",
-        "East-Meets-West Fusion Workshop",
-        "Dempsey Hill Food & History Walk",
-    ],
-    "FUSION": [
-        "Peranakan Nyonya Cooking Workshop",
-        "Traditional Peranakan Culinary Experience",
-        "Nonya Heritage Food Trail",
-        "Modern Singapore Cuisine Masterclass",
-        "Straits Chinese Cooking Class",
-        "Baba Nyonya Heritage Dining",
-        "East-West Spice Journey",
-        "Fusion Hawker Innovation Tour",
-        "Katong Peranakan Food Trail",
-    ],
-    "DESSERT": [
-        "Traditional Kueh Making Workshop",
-        "Old-School Dessert Discovery Tour",
-        "Hawker Dessert Heritage Walk",
-        "Nonya Kueh Cultural Experience",
-        "Local Sweet Treats Masterclass",
-        "Classic Ice Dessert Journey",
-        "Confectionery Heritage Workshop",
-        "Ondeh Ondeh & Kuih Tasting Trail",
-    ],
-    "STREET_FOOD": [
-        "Hawker Centre Discovery Experience",
-        "Singapore Street Food Night Tour",
-        "Maxwell Food Centre Heritage Walk",
-        "Lau Pa Sat Evening Food Experience",
-        "Morning Wet Market Food Tour",
-        "HDB Heartland Hawker Journey",
-        "Private Kopitiam Culture Experience",
-        "Old Airport Road Food Trail",
-        "Tiong Bahru Market Discovery Walk",
-        "Chinatown Complex Food Experience",
-    ],
-}
-
-# Cuisine type → static image path mapping
-# Paths are relative to STATICFILES_DIRS root (src/static/).
-# Templates should resolve these with {% static %}.
-IMAGE_MAP = {
-    "CHINESE":     "images/experiences/chinatown-tour.png",
-    "MALAY":       "images/experiences/kampong-glam.png",
-    "INDIAN":      "images/experiences/little-india.png",
-    "WESTERN":     "images/experiences/night-market.png",
-    "FUSION":      "images/experiences/cooking-class.png",
-    "DESSERT":     "images/experiences/kopitiam.png",
-    "STREET_FOOD": "images/experiences/hawker-tour.png",
-}
-# Used when a cuisine type has no dedicated image
-_IMAGE_FALLBACK = "images/experiences/peranakan-workshop.png"
+# One listing per image — (image, title, cuisine, description).
+# Descriptions are tourist-friendly single sentences (15–25 words).
+_IMG = "images/experiences/"
+LISTINGS = [
+    # CHINESE
+    (_IMG + "chinatown-food-walk.png",             "Chinatown Food Walk",                       "CHINESE",
+     "Stroll through Chinatown's historic lanes sampling hawker favourites and discovering Singapore's rich Chinese food heritage."),
+    (_IMG + "chinatown-street-food-walk.png",      "Chinatown Street Food Walk",                "CHINESE",
+     "Explore Chinatown's famous street food stalls and taste iconic dishes while learning about the area's vibrant culinary history."),
+    (_IMG + "chinatown-tour.png",                  "Chinatown Heritage Tour",                   "CHINESE",
+     "Discover Chinatown's storied past through its heritage shophouses, traditional kopitiams, and beloved local flavours."),
+    (_IMG + "heritage-food-street-singapore.png",  "Singapore Heritage Food Street Walk",       "CHINESE",
+     "Walk Singapore's most celebrated heritage food streets and savour classic dishes passed down through generations."),
+    (_IMG + "kopitiam-breakfast-table.png",        "Traditional Kopitiam Breakfast Experience", "CHINESE",
+     "Start the day the Singaporean way with kaya toast, soft-boiled eggs, and freshly brewed kopi at a classic kopitiam."),
+    (_IMG + "kopitiam-food-experience.png",        "Kopitiam Food Culture Experience",          "CHINESE",
+     "Immerse yourself in Singapore's beloved kopitiam culture, sampling traditional breakfast staples and learning about their Hainanese roots."),
+    (_IMG + "kopitiam.png",                        "Classic Kopitiam Culture Tour",             "CHINESE",
+     "Step inside a traditional Singaporean kopitiam and enjoy a guided tasting of heritage coffee, toast, and local breakfast favourites."),
+    (_IMG + "wet-market-morning-tour.png",         "Morning Wet Market Food Tour",              "CHINESE",
+     "Explore a bustling Singapore wet market at dawn, uncovering fresh produce, local ingredients, and the stories behind them."),
+    (_IMG + "wet-market-tour.png",                 "Wet Market Heritage Tour",                  "CHINESE",
+     "Discover the vibrant rhythm of a traditional wet market and learn how fresh ingredients shape Singapore's iconic everyday cuisine."),
+    # MALAY
+    (_IMG + "kampong-glam-food-tour.png",          "Kampong Glam Food Tour",                    "MALAY",
+     "Tour the historic Kampong Glam neighbourhood and sample rich Malay and Middle Eastern flavours in this culturally vibrant district."),
+    (_IMG + "kampong-glam-golden-hour-tour.png",   "Kampong Glam Golden Hour Tour",             "MALAY",
+     "Experience Kampong Glam's stunning architecture and aromatic Malay street food as the district glows in the evening light."),
+    (_IMG + "kampong-glam.png",                    "Kampong Glam Cultural Experience",          "MALAY",
+     "Explore Kampong Glam's rich Malay heritage through its mosques, colourful shopfronts, and authentic traditional cuisine."),
+    (_IMG + "satay-grill-night-market.png",        "Satay Grill Night Market Experience",       "MALAY",
+     "Gather around a charcoal satay grill at a lively night market and enjoy smoky skewers paired with peanut sauce and ketupat."),
+    (_IMG + "satay-street-food-night.png",         "Satay Street Food Night Tour",              "MALAY",
+     "Join a night tour through Singapore's most iconic satay spots and savour perfectly grilled skewers under the evening sky."),
+    # INDIAN
+    (_IMG + "little-india-food-walk.png",          "Little India Street Food Walk",             "INDIAN",
+     "Wander through Little India's colourful streets and taste vibrant South Indian street food, spices, and freshly made snacks."),
+    (_IMG + "little-india-spice-market-tour.png",  "Little India Spice Market Tour",            "INDIAN",
+     "Explore Little India's aromatic spice markets and discover the bold flavours and rich traditions behind Indian cuisine in Singapore."),
+    (_IMG + "little-india.png",                    "Little India Cultural Food Experience",     "INDIAN",
+     "Discover Little India's culinary soul through a guided tasting of banana leaf rice, roti prata, and freshly brewed teh tarik."),
+    (_IMG + "singapore-spice-market.png",          "Singapore Spice Market Discovery",          "INDIAN",
+     "Dive into Singapore's spice trading heritage and learn how aromatic ingredients from across Asia shaped the city's diverse cuisine."),
+    # WESTERN
+    (_IMG + "marina-bay-food-walk.png",            "Marina Bay Food & Heritage Walk",           "WESTERN",
+     "Stroll along the iconic Marina Bay waterfront, uncovering Singapore's colonial dining heritage and modern culinary landmarks."),
+    # FUSION
+    (_IMG + "cooking-class.png",                   "Singapore Cooking Class Experience",        "FUSION",
+     "Join a hands-on cooking class and learn to prepare classic Singaporean dishes guided by an experienced local chef."),
+    (_IMG + "peranakan-dessert-tasting.png",       "Peranakan Dessert Tasting Experience",      "FUSION",
+     "Discover the intricate art of Peranakan dessert-making through a curated tasting of traditional kuih and Nyonya sweet treats."),
+    (_IMG + "peranakan-workshop.png",              "Peranakan Nyonya Cooking Workshop",         "FUSION",
+     "Learn to prepare authentic Nyonya recipes in this immersive workshop celebrating the unique Peranakan culinary heritage of Singapore."),
+    (_IMG + "singapore-cooking-class-group.png",   "Singapore Group Cooking Class",             "FUSION",
+     "Cook alongside fellow food lovers in a lively group session, mastering classic Singaporean recipes under expert local guidance."),
+    (_IMG + "singapore-cooking-class.png",         "Singapore Culinary Cooking Class",          "FUSION",
+     "Sharpen your culinary skills with a focused cooking class covering Singapore's most beloved dishes and traditional cooking techniques."),
+    # DESSERT
+    (_IMG + "heritage-dessert-tasting.png",        "Heritage Dessert Tasting Experience",       "DESSERT",
+     "Sample a curated selection of time-honoured Singaporean desserts and discover the stories and cultural roots behind each sweet treat."),
+    (_IMG + "singapore-kuih-dessert-display.png",  "Traditional Kuih & Dessert Showcase",       "DESSERT",
+     "Discover traditional Singaporean kuih and heritage desserts while learning about their cultural significance and artisan craftsmanship."),
+    # STREET_FOOD
+    (_IMG + "hawker-centre-lunch-tour.png",        "Hawker Centre Lunch Tour",                  "STREET_FOOD",
+     "Join a guided lunch tour of a bustling hawker centre and sample an exciting variety of Singapore's most beloved street dishes."),
+    (_IMG + "hawker-centre-tour.png",              "Hawker Centre Discovery Tour",              "STREET_FOOD",
+     "Explore one of Singapore's iconic hawker centres and let a local guide introduce you to the must-try dishes and hidden gems."),
+    (_IMG + "hawker-centre-wide-view.png",         "Maxwell Hawker Centre Food Experience",     "STREET_FOOD",
+     "Experience Maxwell Food Centre's legendary dishes, from the famous chicken rice to traditional desserts and fragrant laksa."),
+    (_IMG + "hawker-chef-cooking.png",             "Hawker Chef Cooking Masterclass",           "STREET_FOOD",
+     "Watch a seasoned hawker chef at work and learn the techniques behind Singapore's most iconic wok-fried and grilled street dishes."),
+    (_IMG + "hawker-cooking-demo.png",             "Hawker Cooking Demonstration",              "STREET_FOOD",
+     "Witness the skill and speed of a hawker cook in action as they demonstrate the preparation of Singapore's favourite local dishes."),
+    (_IMG + "hawker-food-table-spread.png",        "Hawker Feast Table Experience",             "STREET_FOOD",
+     "Sit down to a generous hawker feast and taste a wide spread of Singapore's best street food all in one memorable sitting."),
+    (_IMG + "hawker-tour.png",                     "Singapore Hawker Heritage Tour",            "STREET_FOOD",
+     "Trace Singapore's world-famous hawker heritage through a guided tour of historic centres, local favourites, and iconic stall stories."),
+    (_IMG + "lau-pa-sat-night-food.png",           "Lau Pa Sat Night Food Experience",          "STREET_FOOD",
+     "Spend an unforgettable evening at Lau Pa Sat savouring sizzling satay, fragrant noodles, and the vibrant hawker atmosphere."),
+    (_IMG + "lau-pa-sat-satay-night.png",          "Lau Pa Sat Satay Night Tour",               "STREET_FOOD",
+     "Join a satay-focused night tour at the iconic Lau Pa Sat market and enjoy perfectly charred skewers fresh off the grill."),
+    (_IMG + "night-market.png",                    "Singapore Night Market Food Tour",          "STREET_FOOD",
+     "Explore Singapore's lively night market scene and taste an exciting range of street food, snacks, and local delicacies after dark."),
+    (_IMG + "singapore-food-guide-explaining.png", "Guided Singapore Food Discovery Tour",      "STREET_FOOD",
+     "Follow an expert local guide on a curated food discovery tour across Singapore's most authentic and flavour-packed hawker spots."),
+    (_IMG + "street-food-stall-singapore.png",     "Singapore Street Food Stall Experience",    "STREET_FOOD",
+     "Experience Singapore's vibrant hawker culture and sample iconic dishes from local street food vendors at a traditional stall."),
+]
 
 # Tourism-focused review snippets
+BOOKING_NOTES = [
+    "Vegetarian preference",
+    "Birthday celebration",
+    "Food allergy: peanuts",
+    "Food allergy: shellfish",
+    "Gluten-free required",
+    "Halal food only",
+    "Vegan preference",
+    "Anniversary dinner",
+    "Corporate group outing",
+    "First visit to Singapore",
+]
+
 REVIEW_SNIPPETS = [
     "Great cultural immersion and authentic local flavors throughout.",
     "Well-organized tour with a very knowledgeable and friendly guide.",
@@ -212,10 +225,8 @@ def _rand_lng() -> Decimal:
 
 
 def _rand_price() -> Decimal:
-    """Experience-based pricing: 85% standard ($45–$180), 15% premium ($200–$350)."""
-    if random.random() < 0.15:
-        return Decimal(str(random.randint(200, 350)))
-    return Decimal(str(random.randint(45, 180)))
+    """Experience-based pricing: $60–$180 per person."""
+    return Decimal(str(random.randint(60, 180)))
 
 
 def _sg_address() -> str:
@@ -308,22 +319,25 @@ class Command(BaseCommand):
     # ── Listings (experiences) ────────────────────────────────────────────────
 
     def _create_listings(self, vendors: list[Vendor]) -> list[Listing]:
+        # Shuffle LISTINGS so cuisine types are spread across vendors randomly.
+        pool = list(LISTINGS)
+        random.shuffle(pool)
+
+        # Distribute evenly across vendors (38 listings / 10 vendors).
+        base, extra = divmod(len(pool), len(vendors))
         bulk = []
-        base, extra = divmod(LISTING_COUNT, len(vendors))
+        pool_iter = iter(pool)
 
         for idx, vendor in enumerate(vendors):
             count = base + (1 if idx < extra else 0)
-            for _ in range(count):
-                cuisine = random.choice(CUISINE_VALUES)
-                name_pool = EXPERIENCE_NAMES.get(cuisine, ["Local Food Experience"])
+            for _, title, cuisine, description in [next(pool_iter) for _ in range(count)]:
                 bulk.append(Listing(
                     vendor=vendor,
-                    title=random.choice(name_pool),
-                    description=fake.paragraph(nb_sentences=2),
+                    title=title,
+                    description=description,
                     price=_rand_price(),
-                    # Experiences: 90–240 minutes, no durations below 60
-                    duration=random.choice([90, 120, 150, 180, 210, 240]),
-                    max_capacity=random.randint(2, 16),
+                    duration=random.choice([90, 120, 150, 180, 210]),
+                    max_capacity=random.randint(2, 8),
                     cuisine_type=cuisine,
                     availability=random.choices(
                         [True, False], weights=[9, 1]
@@ -337,36 +351,47 @@ class Command(BaseCommand):
         self.stdout.write(f"  Created {len(created)} experience listing(s).")
         return created
 
-    # ── Listing images (cuisine-mapped static paths) ──────────────────────────
+    # ── Listing images (one unique image per listing, derived from LISTINGS) ─────
 
     def _create_listing_images(self, listings: list[Listing]) -> None:
+        # Build title → image path lookup directly from LISTINGS — no random fallback needed.
+        title_to_image = {title: image for image, title, *_ in LISTINGS}
         images = [
             ListingImage(
                 listing=listing,
-                image=IMAGE_MAP.get(listing.cuisine_type, _IMAGE_FALLBACK),
+                image=title_to_image[listing.title],
             )
             for listing in listings
         ]
         ListingImage.objects.bulk_create(images)
-        self.stdout.write(f"  Created {len(images)} listing image(s) (cuisine-mapped).")
+        self.stdout.write(f"  Created {len(images)} listing image(s) (one unique image per listing).")
 
     # ── Bookings ─────────────────────────────────────────────────────────────
 
     def _create_bookings(
         self, tourists: list[CustomUser], listings: list[Listing]
     ) -> list[Booking]:
-        statuses = Booking.Status.values
+        # EXPIRED and CANCELLED_BY_TOURIST are derived states — never seed directly.
+        statuses = [
+            Booking.Status.PENDING,
+            Booking.Status.CONFIRMED,
+            Booking.Status.CANCELLED,
+            Booking.Status.COMPLETED,
+        ]
         bulk = []
         for _ in range(BOOKING_COUNT):
             bulk.append(Booking(
                 tourist=random.choice(tourists),
                 listing=random.choice(listings),
                 booking_date=timezone.make_aware(
-                    fake.date_time_between(start_date="-90d", end_date="+45d")
+                    datetime.combine(
+                        fake.date_between(start_date="-90d", end_date="+45d"),
+                        random.choice(BOOKING_TIME_SLOTS),
+                    )
                 ),
                 party_size=random.randint(1, 8),
                 status=random.choice(statuses),
-                notes=fake.sentence() if random.random() < 0.4 else "",
+                notes=random.choice(BOOKING_NOTES) if random.random() < 0.4 else "",
             ))
         created = Booking.objects.bulk_create(bulk)
         self.stdout.write(f"  Created {len(created)} booking(s).")
@@ -389,7 +414,7 @@ class Command(BaseCommand):
             Review(
                 tourist=tourist,
                 listing=listing,
-                rating=random.randint(1, 5),
+                rating=random.randint(3, 5),
                 review_text=random.choice(REVIEW_SNIPPETS),
             )
             for tourist, listing in pairs[:REVIEW_COUNT]
@@ -420,7 +445,7 @@ class Command(BaseCommand):
                     itinerary=itin,
                     listing=listing,
                     visit_order=order,
-                    notes=fake.sentence() if random.random() < 0.5 else "",
+                    notes=random.choice(BOOKING_NOTES) if random.random() < 0.3 else "",
                 ))
 
         ItineraryStop.objects.bulk_create(stops_bulk)

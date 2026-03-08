@@ -10,37 +10,42 @@
 </div>
 
 <!-- ── Vendor Metrics ── -->
-<div class="admin-metric-section">
+<div class="dashboard-section">
   <h2 class="admin-metric-section-heading">Vendor Management</h2>
-  <div class="row row-cols-1 row-cols-sm-3 g-3 admin-stat-grid">
+  <div class="row row-cols-1 row-cols-sm-3 g-3">
 
     <div class="col">
-      <a href="{% url 'admin_vendors' %}" class="text-decoration-none">
-        <div class="stat-card card h-100">
-          <div class="stat-card-icon">&#127968;</div>
-          <div class="stat-card-count">{{ total_vendors }}</div>
-          <div class="stat-card-label">Total Vendors</div>
-        </div>
+      <a href="{% url 'admin_vendors' %}" class="dashboard-card">
+        <div class="dashboard-card-icon">&#127968;</div>
+        <div class="dashboard-card-number">{{ total_vendors }}</div>
+        <div class="dashboard-card-title">Total Vendors</div>
+        <div class="dashboard-card-link">View all &rarr;</div>
       </a>
     </div>
 
     <div class="col">
-      <a href="{% url 'admin_vendors' %}?status=pending" class="text-decoration-none">
-        <div class="stat-card card h-100">
-          <div class="stat-card-icon">&#9203;</div>
-          <div class="stat-card-count {% if pending_vendors %}text-warning{% endif %}">{{ pending_vendors }}</div>
-          <div class="stat-card-label">Pending Approval</div>
-        </div>
+      <a href="{% url 'admin_vendors' %}?status=pending" class="dashboard-card">
+        <div class="dashboard-card-icon">&#9203;</div>
+        <div class="dashboard-card-number {% if pending_vendors %}text-warning{% endif %}">{{ pending_vendors }}</div>
+        <div class="dashboard-card-title">Pending Approval</div>
+        {% if pending_vendors %}
+          <div class="dashboard-card-link">Review now &rarr;</div>
+        {% else %}
+          <p class="dashboard-card-empty">No pending applications.</p>
+        {% endif %}
       </a>
     </div>
 
     <div class="col">
-      <a href="{% url 'admin_vendors' %}?status=inactive" class="text-decoration-none">
-        <div class="stat-card card h-100">
-          <div class="stat-card-icon">&#128683;</div>
-          <div class="stat-card-count {% if inactive_vendors %}text-warning{% endif %}">{{ inactive_vendors }}</div>
-          <div class="stat-card-label">Deactivated Vendors</div>
-        </div>
+      <a href="{% url 'admin_vendors' %}?status=inactive" class="dashboard-card">
+        <div class="dashboard-card-icon">&#128683;</div>
+        <div class="dashboard-card-number {% if inactive_vendors %}text-warning{% endif %}">{{ inactive_vendors }}</div>
+        <div class="dashboard-card-title">Deactivated Vendors</div>
+        {% if inactive_vendors %}
+          <div class="dashboard-card-link">View all &rarr;</div>
+        {% else %}
+          <p class="dashboard-card-empty">No deactivated vendors.</p>
+        {% endif %}
       </a>
     </div>
 
@@ -48,27 +53,29 @@
 </div>
 
 <!-- ── Review Metrics ── -->
-<div class="admin-metric-section">
+<div class="dashboard-section">
   <h2 class="admin-metric-section-heading">Review Moderation</h2>
-  <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 admin-stat-grid">
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
 
     <div class="col">
-      <a href="{% url 'admin_reviews' %}" class="text-decoration-none">
-        <div class="stat-card card h-100">
-          <div class="stat-card-icon">&#11088;</div>
-          <div class="stat-card-count">{{ total_reviews }}</div>
-          <div class="stat-card-label">Total Reviews</div>
-        </div>
+      <a href="{% url 'admin_reviews' %}" class="dashboard-card">
+        <div class="dashboard-card-icon">&#11088;</div>
+        <div class="dashboard-card-number">{{ total_reviews }}</div>
+        <div class="dashboard-card-title">Total Reviews</div>
+        <div class="dashboard-card-link">View all &rarr;</div>
       </a>
     </div>
 
     <div class="col">
-      <a href="{% url 'admin_reviews' %}?status=hidden" class="text-decoration-none">
-        <div class="stat-card card h-100">
-          <div class="stat-card-icon">&#128065;</div>
-          <div class="stat-card-count {% if hidden_reviews %}text-warning{% endif %}">{{ hidden_reviews }}</div>
-          <div class="stat-card-label">Hidden Reviews</div>
-        </div>
+      <a href="{% url 'admin_reviews' %}?status=hidden" class="dashboard-card">
+        <div class="dashboard-card-icon">&#128065;</div>
+        <div class="dashboard-card-number {% if hidden_reviews %}text-warning{% endif %}">{{ hidden_reviews }}</div>
+        <div class="dashboard-card-title">Hidden Reviews</div>
+        {% if hidden_reviews %}
+          <div class="dashboard-card-link">Review now &rarr;</div>
+        {% else %}
+          <p class="dashboard-card-empty">No hidden reviews.</p>
+        {% endif %}
       </a>
     </div>
 
@@ -81,4 +88,26 @@
   <a href="{% url 'admin_reviews' %}" class="btn btn-outline-secondary">Manage Reviews</a>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".dashboard-card-number").forEach(function (el) {
+    var target = parseInt(el.innerText, 10);
+    if (!target) return;
+    el.innerText = "0";
+    var increment = target / 30;
+    (function tick() {
+      var current = parseInt(el.innerText, 10);
+      if (current < target) {
+        el.innerText = Math.min(Math.ceil(current + increment), target);
+        setTimeout(tick, 20);
+      } else {
+        el.innerText = target;
+      }
+    })();
+  });
+});
+</script>
 {% endblock %}

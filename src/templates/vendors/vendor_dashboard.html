@@ -3,15 +3,87 @@
 {% block title %}Vendor Dashboard — TasteLocal{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Vendor Dashboard</h1>
-<p class="text-secondary">Welcome, {{ vendor.name }}.</p>
+<h1 class="page-heading mb-2">Vendor Dashboard</h1>
+<p class="mb-3" style="font-size: 1.125rem; font-weight: 500; color: var(--text-primary);">
+  Welcome back, {{ vendor.name }} &#128075;
+</p>
 
-<div class="card p-3 mt-3">
-  <h2 class="h5 mb-3">Quick Links</h2>
-  <ul class="list-unstyled mb-0">
-    <li class="mb-2"><a href="#">My Listings</a></li>
-    <li class="mb-2"><a href="{% url 'vendor_bookings' %}">Bookings</a></li>
-    <li><a href="#">Reviews</a></li>
-  </ul>
+<div class="dashboard-header">
+  <span class="dashboard-mode-label">Viewing vendor activity</span>
+  <a href="{% url 'tourist_dashboard' %}" class="dashboard-switch-btn">
+    Switch to Tourist View &#9992;
+  </a>
 </div>
+
+<div class="dashboard-section">
+  <h2 class="section-subheading mb-3">Business Overview</h2>
+
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
+
+    <!-- Bookings -->
+    <div class="col">
+      <a href="{% url 'vendor_bookings' %}" class="dashboard-card">
+        <div class="dashboard-card-icon">&#128197;</div>
+        <div class="dashboard-card-number">{{ booking_count }}</div>
+        <div class="dashboard-card-title">Bookings</div>
+        {% if booking_count %}
+          <div class="dashboard-card-link">View all &rarr;</div>
+        {% else %}
+          <p class="dashboard-card-empty">No bookings yet.</p>
+        {% endif %}
+      </a>
+    </div>
+
+    <!-- Listings -->
+    <div class="col">
+      <a href="{% url 'vendor_listings' %}" class="dashboard-card">
+        <div class="dashboard-card-icon">&#127869;</div>
+        <div class="dashboard-card-number">{{ listing_count }}</div>
+        <div class="dashboard-card-title">Listings</div>
+        {% if listing_count %}
+          <div class="dashboard-card-link">View all &rarr;</div>
+        {% else %}
+          <p class="dashboard-card-empty">No experiences listed yet.</p>
+        {% endif %}
+      </a>
+    </div>
+
+    <!-- Reviews -->
+    <div class="col">
+      <a href="{% url 'vendor_reviews' %}" class="dashboard-card">
+        <div class="dashboard-card-icon">&#11088;</div>
+        <div class="dashboard-card-number">{{ review_count }}</div>
+        <div class="dashboard-card-title">Reviews</div>
+        {% if review_count %}
+          <div class="dashboard-card-link">View all &rarr;</div>
+        {% else %}
+          <p class="dashboard-card-empty">No reviews yet.</p>
+        {% endif %}
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".dashboard-card-number").forEach(function (el) {
+    var target = parseInt(el.innerText, 10);
+    if (!target) return;
+    el.innerText = "0";
+    var increment = target / 30;
+    (function tick() {
+      var current = parseInt(el.innerText, 10);
+      if (current < target) {
+        el.innerText = Math.min(Math.ceil(current + increment), target);
+        setTimeout(tick, 20);
+      } else {
+        el.innerText = target;
+      }
+    })();
+  });
+});
+</script>
 {% endblock %}

@@ -4,6 +4,19 @@ from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 
 
+def tourist_or_vendor_required(view_func):
+    """Allow both TOURIST and approved VENDOR users; block staff/admin."""
+    @wraps(view_func)
+    def _wrapped(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect_to_login(request.get_full_path())
+        if request.user.is_staff or request.user.role == "ADMIN":
+            raise PermissionDenied
+        return view_func(request, *args, **kwargs)
+
+    return _wrapped
+
+
 def tourist_required(view_func):
     @wraps(view_func)
     def _wrapped(request, *args, **kwargs):

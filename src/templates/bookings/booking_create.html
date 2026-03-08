@@ -46,7 +46,7 @@
             and {{ listing.vendor.closing_time|time:"H:i" }}.
           </div>
           {% if form.booking_date.errors %}
-            <div class="text-danger small mt-1">
+            <div class="text-danger small mt-1" id="date-server-error">
               {% for e in form.booking_date.errors %}{{ e }}{% endfor %}
             </div>
           {% endif %}
@@ -64,7 +64,7 @@
             Between 1 and {{ listing.max_capacity }} guest{{ listing.max_capacity|pluralize }}.
           </div>
           {% if form.party_size.errors %}
-            <div class="text-danger small mt-1">
+            <div class="text-danger small mt-1" id="party-server-error">
               {% for e in form.party_size.errors %}{{ e }}{% endfor %}
             </div>
           {% endif %}
@@ -110,8 +110,9 @@
          + 'T' + z(d.getHours()) + ':' + z(d.getMinutes());
   }
 
-  /* Show or clear an inline client-side error below an input. */
-  function setError(input, errorEl, msg) {
+  /* Show or clear an inline client-side error below an input.
+     Also hides the server-rendered error (serverEl) when the field becomes valid. */
+  function setError(input, errorEl, msg, serverEl) {
     if (msg) {
       errorEl.textContent = msg;
       errorEl.style.display = 'block';
@@ -120,12 +121,14 @@
       errorEl.textContent = '';
       errorEl.style.display = 'none';
       input.classList.remove('is-invalid');
+      if (serverEl) serverEl.style.display = 'none';
     }
   }
 
   /* ── Booking date ────────────────────────────────────────────── */
-  var dtInput   = document.getElementById('id_booking_date');
-  var dtErrorEl = document.getElementById('date-client-error');
+  var dtInput      = document.getElementById('id_booking_date');
+  var dtErrorEl    = document.getElementById('date-client-error');
+  var dtServerEl   = document.getElementById('date-server-error');
 
   if (dtInput) {
     /* Restrict the picker: earliest selectable moment is right now. */
@@ -138,16 +141,16 @@
 
     function validateDate() {
       var val = dtInput.value;
-      if (!val) { setError(dtInput, dtErrorEl, ''); return; }
+      if (!val) { setError(dtInput, dtErrorEl, '', dtServerEl); return; }
 
       var timePart = val.split('T')[1];   /* "HH:MM" */
-      if (!timePart) { setError(dtInput, dtErrorEl, ''); return; }
+      if (!timePart) { setError(dtInput, dtErrorEl, '', dtServerEl); return; }
 
       var msg = (timePart < OPENING || timePart >= CLOSING)
         ? 'Booking time must be between ' + OPENING + ' and ' + CLOSING + '.'
         : '';
 
-      setError(dtInput, dtErrorEl, msg);
+      setError(dtInput, dtErrorEl, msg, dtServerEl);
     }
 
     dtInput.addEventListener('change', validateDate);
@@ -155,8 +158,9 @@
   }
 
   /* ── Party size ──────────────────────────────────────────────── */
-  var psInput   = document.getElementById('id_party_size');
-  var psErrorEl = document.getElementById('party-client-error');
+  var psInput    = document.getElementById('id_party_size');
+  var psErrorEl  = document.getElementById('party-client-error');
+  var psServerEl = document.getElementById('party-server-error');
 
   if (psInput) {
     {% if form.party_size.errors %}
@@ -165,7 +169,7 @@
 
     function validatePartySize() {
       var raw = psInput.value.trim();
-      if (!raw) { setError(psInput, psErrorEl, ''); return; }
+      if (!raw) { setError(psInput, psErrorEl, '', psServerEl); return; }
 
       var val = parseInt(raw, 10);
       var msg = '';
@@ -177,7 +181,7 @@
             + (MAX_CAPACITY !== 1 ? 's' : '') + ' for this experience.';
       }
 
-      setError(psInput, psErrorEl, msg);
+      setError(psInput, psErrorEl, msg, psServerEl);
     }
 
     /* blur: validate when leaving the field */

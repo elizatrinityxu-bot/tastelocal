@@ -18,10 +18,24 @@
 }
 
 /* ── Base ───────────────────────────────────────────────────── */
+html, body {
+  height: 100%;
+}
+
 body {
   background-color: var(--background);
   font-family: 'Inter', sans-serif;
   color: var(--text-primary);
+}
+
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-wrapper {
+  flex: 1;
 }
 
 /* ── Typography ─────────────────────────────────────────────── */
@@ -1089,7 +1103,9 @@ a:hover {
 .booking-status-confirmed  { background-color: #4CAF50; color: #fff; }
 .booking-status-pending    { background-color: #ffc107; color: #212529; }
 .booking-status-cancelled  { background-color: #D9534F; color: #fff; }
-.booking-status-completed  { background-color: #6c757d; color: #fff; }
+.booking-status-completed            { background-color: #6c757d; color: #fff; }
+.booking-status-cancelled_by_tourist { background-color: #D9534F; color: #fff; }
+.booking-status-expired              { background-color: #343a40; color: #fff; }
 
 /* ── Itinerary stop list ─────────────────────────────────────── */
 .itinerary-stop-list {
@@ -1106,6 +1122,107 @@ a:hover {
 .itinerary-stop-link:hover {
   color: var(--secondary);
   text-decoration: underline;
+}
+
+/* ── Itinerary Timeline ──────────────────────────────────────── */
+
+.itin-timeline {
+  position: relative;
+  padding-left: 2.5rem;
+}
+
+/* Vertical connecting line */
+.itin-timeline::before {
+  content: '';
+  position: absolute;
+  left: 0.5625rem;        /* horizontally centres on the 1.125rem circle */
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 2px;
+  background: var(--secondary);
+  opacity: 0.25;
+}
+
+.itin-node {
+  position: relative;
+  padding-bottom: 1.5rem;
+}
+
+/* Circle marker */
+.itin-node::before {
+  content: '';
+  position: absolute;
+  left: -2.5rem;
+  top: 0.2rem;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 50%;
+  background: var(--secondary);
+  border: 2.5px solid #fff;
+  box-shadow: 0 0 0 2px var(--secondary);
+  z-index: 1;
+}
+
+/* Start / End markers use primary colour */
+.itin-node--cap::before {
+  background: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary);
+}
+
+.itin-node--end {
+  padding-bottom: 0;
+}
+
+.itin-node-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.itin-node-cap-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary);
+  line-height: 1.4;
+  padding-top: 0.1rem;
+}
+
+.itin-node--cap:first-child .itin-node-cap-label {
+  color: var(--secondary);
+}
+
+.itin-node-meta {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 0.15rem;
+}
+
+.itin-node-desc {
+  font-size: 0.8125rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+  line-height: 1.5;
+}
+
+.itin-node-time {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--secondary);
+  letter-spacing: 0.01em;
+  margin-bottom: 0.2rem;
+}
+
+.itin-node--overlap .itin-node-time {
+  color: #c0392b;
+}
+
+.itin-overlap-warn {
+  margin-left: 0.35rem;
+  font-size: 0.85rem;
+  color: #c0392b;
+  cursor: default;
 }
 
 /* ── Wishlist Heart Button ───────────────────────────────────── */
@@ -1455,4 +1572,93 @@ a:hover {
 .footer-social-link svg {
   width: 0.9rem;
   height: 0.9rem;
+}
+
+/* ── Dashboard cards ─────────────────────────────────────────────────────── */
+
+.dashboard-card {
+  border-radius: 10px;
+  padding: 22px;
+  background: #ffffff;
+  text-align: center;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08);
+  text-decoration: none;
+}
+
+.dashboard-card-icon {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.dashboard-card-number {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.dashboard-card-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.dashboard-card-link {
+  font-size: 14px;
+  color: var(--secondary);
+  text-decoration: none;
+}
+
+.dashboard-card-empty {
+  font-size: 13px;
+  color: #adb5bd;
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+/* ── Dashboard layout ────────────────────────────────────────────────────── */
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.dashboard-section {
+  margin-top: 24px;
+}
+
+/* ── Dashboard view switcher ─────────────────────────────────────────────── */
+
+.dashboard-mode-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #6c757d;
+}
+
+.dashboard-switch-btn {
+  background-color: #2f9d8f;
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  border: 1px solid #2f9d8f;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.dashboard-switch-btn:hover {
+  background-color: #258579;
+  border-color: #258579;
+  color: #ffffff;
+  text-decoration: none;
 }

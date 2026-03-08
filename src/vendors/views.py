@@ -1,5 +1,6 @@
 import math
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg, Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -7,7 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from accounts.decorators import tourist_required, vendor_required
 from core.models import WishlistItem
 
-from .forms import VendorApplicationForm
+from .forms import ListingForm, VendorApplicationForm
 from .geocoding import geocode_address
 from .models import Listing
 
@@ -41,8 +42,66 @@ def _haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 @vendor_required
 def vendor_dashboard(request):
+    from bookings.models import Booking
+    from reviews.models import Review
+
     vendor = request.user.vendor_profile
-    return render(request, "vendors/vendor_dashboard.html", {"vendor": vendor})
+    booking_count = Booking.objects.filter(listing__vendor=vendor).count()
+    listing_count = vendor.listings.count()
+    review_count = Review.objects.filter(listing__vendor=vendor, is_approved=True).count()
+    return render(request, "vendors/vendor_dashboard.html", {
+        "vendor": vendor,
+        "booking_count": booking_count,
+        "listing_count": listing_count,
+        "review_count": review_count,
+    })
+
+
+# ---------------------------------------------------------------------------
+# Vendor listings
+# ---------------------------------------------------------------------------
+
+@vendor_required
+def vendor_listings(request):
+    vendor = request.user.vendor_profile
+    listings = (
+        vendor.listings
+        .prefetch_related("images")
+        .order_by("title")
+    )
+    return render(request, "vendors/vendor_listings.html", {
+        "vendor": vendor,
+        "listings": listings,
+    })
+
+
+# ---------------------------------------------------------------------------
+# Listing edit / delete
+# ---------------------------------------------------------------------------
+
+@vendor_required
+def listing_edit(request, pk):
+    vendor = request.user.vendor_profile
+    listing = get_object_or_404(Listing, pk=pk, vendor=vendor)
+    if request.method == "POST":
+        form = ListingForm(request.POST, instance=listing)
+        if form.is_valid():
+            form.save()
+            return redirect("vendor_listings")
+    else:
+        form = ListingForm(instance=listing)
+    return render(request, "vendors/listing_edit.html", {"form": form, "listing": listing})
+
+
+@vendor_required
+def listing_delete(request, pk):
+    vendor = request.user.vendor_profile
+    listing = get_object_or_404(Listing, pk=pk, vendor=vendor)
+    if request.method == "POST":
+        title = listing.title
+        listing.delete()
+        messages.success(request, f'"{title}" has been deleted.')
+    return redirect("vendor_listings")
 
 
 # ---------------------------------------------------------------------------

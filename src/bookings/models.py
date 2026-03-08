@@ -7,7 +7,9 @@ class Booking(models.Model):
         PENDING = "PENDING", "Pending"
         CONFIRMED = "CONFIRMED", "Confirmed"
         CANCELLED = "CANCELLED", "Cancelled"
+        CANCELLED_BY_TOURIST = "CANCELLED_BY_TOURIST", "Cancelled by Tourist"
         COMPLETED = "COMPLETED", "Completed"
+        EXPIRED = "EXPIRED", "Expired"
 
     tourist = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -22,7 +24,7 @@ class Booking(models.Model):
     booking_date = models.DateTimeField()
     party_size = models.PositiveIntegerField()
     status = models.CharField(
-        max_length=10,
+        max_length=20,
         choices=Status.choices,
         default=Status.PENDING,
     )

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}My Reviews — TasteLocal{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <a href="{% url 'vendor_dashboard' %}" class="text-secondary small">&larr; Back to Dashboard</a>
+</div>
+
+<h1 class="page-heading mb-4">My Reviews</h1>
+
+{% if reviews %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle booking-table">
+      <thead>
+        <tr>
+          <th>Experience</th>
+          <th>Tourist</th>
+          <th>Rating</th>
+          <th>Review</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for review in reviews %}
+          <tr>
+            <td>
+              <a href="{% url 'listing_detail' review.listing.id %}" class="booking-listing-link">
+                {{ review.listing.title }}
+              </a>
+            </td>
+            <td>{{ review.tourist.get_full_name|default:review.tourist.username }}</td>
+            <td>
+              {% for i in "12345" %}
+                {% if forloop.counter <= review.rating %}&#9733;{% else %}&#9734;{% endif %}
+              {% endfor %}
+            </td>
+            <td class="text-secondary">{{ review.review_text|truncatechars:100 }}</td>
+            <td class="text-secondary small">{{ review.created_at|date:"j M Y" }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+{% else %}
+  <div class="text-center py-5">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">&#11088;</div>
+    <h2 class="h5 mb-2" style="color: var(--text-primary);">No reviews yet</h2>
+    <p class="text-secondary mb-0">Reviews from tourists will appear here once approved.</p>
+  </div>
+{% endif %}
+
+{% endblock %}

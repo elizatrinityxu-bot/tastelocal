@@ -21,6 +21,7 @@
           <th>Guests</th>
           <th>Status</th>
           <th>Notes</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -37,11 +38,47 @@
             <td>{{ booking.booking_date|date:"j M Y, g:i A" }}</td>
             <td>{{ booking.party_size }}</td>
             <td>
-              <span class="badge booking-status-{{ booking.status|lower }}">
-                {{ booking.get_status_display }}
+              <span class="badge booking-status-{{ booking.status|lower|default:'pending' }}">
+                {{ booking.get_status_display|default:"Pending" }}
               </span>
             </td>
-            <td class="text-secondary">{{ booking.notes|default:"—" }}</td>
+            <td class="text-secondary">{{ booking.notes|truncatechars:80|default:"—" }}</td>
+            <td>
+              {% if booking.status == 'PENDING' or booking.status == 'CONFIRMED' %}
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        data-bs-toggle="modal"
+                        data-bs-target="#cancelModal{{ booking.id }}">
+                  Cancel
+                </button>
+
+                <!-- Confirmation modal -->
+                <div class="modal fade" id="cancelModal{{ booking.id }}" tabindex="-1"
+                     aria-labelledby="cancelModalLabel{{ booking.id }}" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                      <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title" id="cancelModalLabel{{ booking.id }}">Cancel Booking</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body pt-2">
+                        <p class="mb-1">Are you sure you want to cancel this booking?</p>
+                        <p class="text-secondary small mb-0">{{ booking.listing.title }} &mdash; {{ booking.booking_date|date:"j M Y, g:i A" }}</p>
+                      </div>
+                      <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Booking</button>
+                        <form method="post" action="{% url 'booking_cancel' booking.id %}">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-danger">Confirm Cancel</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% else %}
+                <span class="text-secondary small">—</span>
+              {% endif %}
+            </td>
           </tr>
         {% endfor %}
       </tbody>
