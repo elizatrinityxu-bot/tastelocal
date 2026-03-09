@@ -1418,7 +1418,7 @@ a:hover {
   display: flex;
   gap: 0.875rem;
   flex-wrap: wrap;
-  margin-top: 0.5rem;
+  margin-top: 2rem;
 }
 
 .admin-actions .btn {

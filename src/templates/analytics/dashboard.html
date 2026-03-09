@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}Analytics — TasteLocal{% endblock %}
+
+{% block content %}
+
+<div class="admin-page-header">
+  <h1 class="admin-page-heading">Analytics</h1>
+  <p class="admin-subtitle">Platform-wide metrics at a glance.</p>
+</div>
+
+<!-- ── Summary Cards ── -->
+<div class="dashboard-section">
+  <h2 class="admin-metric-section-heading">Summary</h2>
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
+
+    <div class="col">
+      <a href="{% url 'admin_vendors' %}" class="dashboard-card">
+        <div class="dashboard-card-icon">&#127968;</div>
+        <div class="dashboard-card-number">{{ total_vendors }}</div>
+        <div class="dashboard-card-title">Total Vendors</div>
+        <div class="dashboard-card-link">View all &rarr;</div>
+      </a>
+    </div>
+
+    <div class="col">
+      <a href="{% url 'admin_vendors' %}?status=pending" class="dashboard-card">
+        <div class="dashboard-card-icon">&#9203;</div>
+        <div class="dashboard-card-number {% if pending_vendors %}text-warning{% endif %}">
+          {{ pending_vendors }}
+        </div>
+        <div class="dashboard-card-title">Pending Approvals</div>
+        {% if pending_vendors %}
+          <div class="dashboard-card-link">Review now &rarr;</div>
+        {% else %}
+          <p class="dashboard-card-empty">None pending.</p>
+        {% endif %}
+      </a>
+    </div>
+
+    <div class="col">
+      <div class="dashboard-card" style="cursor: default;">
+        <div class="dashboard-card-icon">&#128197;</div>
+        <div class="dashboard-card-number">{{ total_bookings }}</div>
+        <div class="dashboard-card-title">Total Bookings</div>
+      </div>
+    </div>
+
+    <div class="col">
+      <a href="{% url 'admin_reviews' %}" class="dashboard-card">
+        <div class="dashboard-card-icon">&#11088;</div>
+        <div class="dashboard-card-number">{{ total_reviews }}</div>
+        <div class="dashboard-card-title">Total Reviews</div>
+        <div class="dashboard-card-link">View all &rarr;</div>
+      </a>
+    </div>
+
+    <div class="col">
+      <a href="{% url 'admin_reviews' %}?status=hidden" class="dashboard-card">
+        <div class="dashboard-card-icon">&#128065;</div>
+        <div class="dashboard-card-number {% if hidden_reviews %}text-warning{% endif %}">
+          {{ hidden_reviews }}
+        </div>
+        <div class="dashboard-card-title">Hidden Reviews</div>
+        {% if hidden_reviews %}
+          <div class="dashboard-card-link">Review now &rarr;</div>
+        {% else %}
+          <p class="dashboard-card-empty">None hidden.</p>
+        {% endif %}
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Bookings per Month Chart ── -->
+{% if chart_labels %}
+<div class="dashboard-section">
+  <h2 class="admin-metric-section-heading">Bookings per Month</h2>
+  <div class="card p-4" style="max-width: 720px;">
+    <canvas id="bookingsChart" height="120"></canvas>
+  </div>
+</div>
+{% endif %}
+
+<!-- ── Quick Actions ── -->
+<div class="admin-actions">
+  <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">Admin Dashboard</a>
+  <a href="{% url 'admin_vendors' %}" class="btn btn-primary">Manage Vendors</a>
+  <a href="{% url 'admin_reviews' %}" class="btn btn-outline-secondary">Manage Reviews</a>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Counter animation -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".dashboard-card-number").forEach(function (el) {
+    var target = parseInt(el.innerText, 10);
+    if (!target) return;
+    el.innerText = "0";
+    var increment = target / 30;
+    (function tick() {
+      var current = parseInt(el.innerText, 10);
+      if (current < target) {
+        el.innerText = Math.min(Math.ceil(current + increment), target);
+        setTimeout(tick, 20);
+      } else {
+        el.innerText = target;
+      }
+    })();
+  });
+});
+</script>
+
+{% if chart_labels %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  var labels = {{ chart_labels|safe }};
+  var data   = {{ chart_data|safe }};
+
+  new Chart(document.getElementById("bookingsChart"), {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "Bookings",
+        data: data,
+        backgroundColor: "rgba(231, 111, 81, 0.75)",  /* --primary */
+        borderColor: "rgba(231, 111, 81, 1)",
+        borderWidth: 1,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) { return " " + ctx.parsed.y + " booking" + (ctx.parsed.y !== 1 ? "s" : ""); }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { precision: 0 },
+          grid: { color: "rgba(0,0,0,0.05)" }
+        },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}());
+</script>
+{% endif %}
+{% endblock %}
