@@ -33,6 +33,6 @@ class VendorApplicationForm(forms.ModelForm):
             ),
             "description": forms.Textarea(attrs={"rows": 4}),
             "address": forms.TextInput(
-                attrs={"placeholder": "e.g. 123 Jalan Bukit Bintang, Kuala Lumpur, Malaysia"}
+                attrs={"placeholder": "e.g. 123 Orchard Road, Singapore 238888"}
             ),
         }

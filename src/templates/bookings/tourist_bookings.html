@@ -44,40 +44,134 @@
             </td>
             <td class="text-secondary">{{ booking.notes|truncatechars:80|default:"—" }}</td>
             <td>
-              {% if booking.status == 'PENDING' or booking.status == 'CONFIRMED' %}
-                <button type="button"
-                        class="btn btn-sm btn-outline-danger"
-                        data-bs-toggle="modal"
-                        data-bs-target="#cancelModal{{ booking.id }}">
-                  Cancel
-                </button>
+              <div class="d-flex flex-column gap-1">
 
-                <!-- Confirmation modal -->
-                <div class="modal fade" id="cancelModal{{ booking.id }}" tabindex="-1"
-                     aria-labelledby="cancelModalLabel{{ booking.id }}" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                      <div class="modal-header border-0 pb-0">
-                        <h5 class="modal-title" id="cancelModalLabel{{ booking.id }}">Cancel Booking</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                {# ── Cancel (PENDING / CONFIRMED) ──────────────────── #}
+                {% if booking.status == 'PENDING' or booking.status == 'CONFIRMED' %}
+                  <button type="button"
+                          class="btn btn-sm btn-outline-danger"
+                          data-bs-toggle="modal"
+                          data-bs-target="#cancelModal{{ booking.id }}">
+                    Cancel
+                  </button>
+                  <div class="modal fade" id="cancelModal{{ booking.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <div class="modal-header border-0 pb-0">
+                          <h5 class="modal-title">Cancel Booking</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body pt-2">
+                          <p class="mb-1">Are you sure you want to cancel this booking?</p>
+                          <p class="text-secondary small mb-0">{{ booking.listing.title }} &mdash; {{ booking.booking_date|date:"j M Y, g:i A" }}</p>
+                        </div>
+                        <div class="modal-footer border-0 pt-0">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Booking</button>
+                          <form method="post" action="{% url 'booking_cancel' booking.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Confirm Cancel</button>
+                          </form>
+                        </div>
                       </div>
-                      <div class="modal-body pt-2">
-                        <p class="mb-1">Are you sure you want to cancel this booking?</p>
-                        <p class="text-secondary small mb-0">{{ booking.listing.title }} &mdash; {{ booking.booking_date|date:"j M Y, g:i A" }}</p>
+                    </div>
+                  </div>
+                {% endif %}
+
+                {# ── Review actions (COMPLETED only) ───────────────── #}
+                {% if booking.status == 'COMPLETED' %}
+
+                  {% if booking.tourist_review %}
+                    {# Already reviewed → Edit + Delete #}
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary review-trigger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#reviewModal{{ booking.id }}"
+                            data-action="{% url 'edit_review' booking.tourist_review.id %}"
+                            data-title="Edit Review"
+                            data-rating="{{ booking.tourist_review.rating }}"
+                            data-text="{{ booking.tourist_review.review_text|escape }}">
+                      Edit Review
+                    </button>
+                    <button type="button"
+                            class="btn btn-sm btn-outline-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteModal{{ booking.id }}">
+                      Delete Review
+                    </button>
+
+                    {# Delete confirmation modal #}
+                    <div class="modal fade" id="deleteModal{{ booking.id }}" tabindex="-1" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                          <div class="modal-header border-0 pb-0">
+                            <h5 class="modal-title">Delete Review</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body pt-2">
+                            <p class="mb-1">Delete your review for <strong>{{ booking.listing.title }}</strong>?</p>
+                            <p class="text-secondary small mb-0">This cannot be undone.</p>
+                          </div>
+                          <div class="modal-footer border-0 pt-0">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Review</button>
+                            <form method="post" action="{% url 'delete_review' booking.tourist_review.id %}">
+                              {% csrf_token %}
+                              <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                          </div>
+                        </div>
                       </div>
-                      <div class="modal-footer border-0 pt-0">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Booking</button>
-                        <form method="post" action="{% url 'booking_cancel' booking.id %}">
+                    </div>
+
+                  {% else %}
+                    {# Not yet reviewed → Write Review #}
+                    <button type="button"
+                            class="btn btn-sm btn-outline-primary review-trigger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#reviewModal{{ booking.id }}"
+                            data-action="{% url 'submit_review' booking.id %}"
+                            data-title="Write a Review"
+                            data-rating=""
+                            data-text="">
+                      Write Review
+                    </button>
+                  {% endif %}
+
+                  {# Shared write/edit modal #}
+                  <div class="modal fade" id="reviewModal{{ booking.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <div class="modal-header border-0 pb-0">
+                          <h5 class="modal-title">Write a Review</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="post" action="">
                           {% csrf_token %}
-                          <button type="submit" class="btn btn-danger">Confirm Cancel</button>
+                          <div class="modal-body pt-2">
+                            <div class="mb-3">
+                              <label class="form-label fw-semibold">Rating (1–5)</label>
+                              <input type="number" name="rating" class="form-control"
+                                     min="1" max="5" required placeholder="e.g. 5">
+                            </div>
+                            <div class="mb-2">
+                              <label class="form-label fw-semibold">Comment</label>
+                              <textarea name="review_text" class="form-control" rows="4"
+                                        required placeholder="Share your experience…"></textarea>
+                            </div>
+                          </div>
+                          <div class="modal-footer border-0 pt-0">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary"
+                                    onclick="this.disabled=true; this.form.submit();">Submit</button>
+                          </div>
                         </form>
                       </div>
                     </div>
                   </div>
-                </div>
-              {% else %}
-                <span class="text-secondary small">—</span>
-              {% endif %}
+
+                {% endif %}
+                {# end COMPLETED #}
+
+              </div>
             </td>
           </tr>
         {% endfor %}
@@ -94,4 +188,25 @@
   </div>
 {% endif %}
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.review-trigger').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var modal = document.querySelector(btn.getAttribute('data-bs-target'));
+    if (!modal) return;
+    var form = modal.querySelector('form');
+    if (form) form.action = btn.dataset.action;
+    var titleEl = modal.querySelector('.modal-title');
+    if (titleEl) titleEl.textContent = btn.dataset.title;
+    var ratingInput = modal.querySelector('[name="rating"]');
+    if (ratingInput) ratingInput.value = btn.dataset.rating || '';
+    var textInput = modal.querySelector('[name="review_text"]');
+    if (textInput) textInput.value = btn.dataset.text || '';
+    var submitBtn = modal.querySelector('[type="submit"]');
+    if (submitBtn) submitBtn.disabled = false;
+  });
+});
+</script>
 {% endblock %}

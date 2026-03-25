@@ -50,6 +50,11 @@ def tourist_dashboard(request):
     review_count = Review.objects.filter(tourist=user).count()
     itinerary_count = Itinerary.objects.filter(tourist=user).count()
     wishlist_count = WishlistItem.objects.filter(user=user).count()
+    recent_reviews = (
+        Review.objects.filter(tourist=user)
+        .select_related("listing", "listing__vendor")
+        .order_by("-created_at")[:3]
+    )
     return render(
         request,
         "accounts/tourist_dashboard.html",
@@ -61,5 +66,6 @@ def tourist_dashboard(request):
             "review_count": review_count,
             "itinerary_count": itinerary_count,
             "wishlist_count": wishlist_count,
+            "recent_reviews": recent_reviews,
         },
     )

@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from accounts.decorators import tourist_or_vendor_required, tourist_required, vendor_required
 from itinerary.models import Itinerary, ItineraryStop
+from reviews.models import Review
 from vendors.models import Listing
 
 from .forms import BookingForm
@@ -91,11 +92,20 @@ def create_booking(request, listing_id):
 @tourist_or_vendor_required
 def tourist_bookings(request):
     _auto_expire(Booking.objects.filter(tourist=request.user))
-    bookings = (
+    bookings = list(
         Booking.objects.filter(tourist=request.user)
         .select_related("listing", "listing__vendor")
         .order_by("-created_at")
     )
+    reviews_map = {
+        r.booking_id: r
+        for r in Review.objects.filter(
+            tourist=request.user,
+            booking_id__in=[b.id for b in bookings],
+        )
+    }
+    for booking in bookings:
+        booking.tourist_review = reviews_map.get(booking.id)
     return render(request, "bookings/tourist_bookings.html", {"bookings": bookings})
 
 

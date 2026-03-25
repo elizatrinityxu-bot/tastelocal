@@ -5,4 +5,7 @@ from . import views
 urlpatterns = [
     path("my/", views.my_reviews, name="my_reviews"),
     path("vendor/", views.vendor_reviews, name="vendor_reviews"),
+    path("submit/<int:booking_id>/", views.submit_review, name="submit_review"),
+    path("edit/<int:review_id>/", views.edit_review, name="edit_review"),
+    path("delete/<int:review_id>/", views.delete_review, name="delete_review"),
 ]

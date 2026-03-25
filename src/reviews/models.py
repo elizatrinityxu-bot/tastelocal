@@ -14,12 +14,28 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name="reviews",
     )
+    booking = models.ForeignKey(
+        "bookings.Booking",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="review",
+    )
     rating = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)],
     )
     review_text = models.TextField()
     is_approved = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["tourist", "booking"],
+                condition=models.Q(booking__isnull=False),
+                name="unique_review_per_booking",
+            )
+        ]
 
     def __str__(self):
         return f"Review by {self.tourist} for {self.listing} ({self.rating}/5)"
