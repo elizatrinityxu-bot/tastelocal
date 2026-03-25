@@ -84,8 +84,24 @@ def vendor_listings(request):
 
 
 # ---------------------------------------------------------------------------
-# Listing edit / delete
+# Listing create / edit / delete
 # ---------------------------------------------------------------------------
+
+@vendor_required
+def listing_create(request):
+    vendor = request.user.vendor_profile
+    if request.method == "POST":
+        form = ListingForm(request.POST)
+        if form.is_valid():
+            listing = form.save(commit=False)
+            listing.vendor = vendor
+            listing.save()
+            messages.success(request, f'"{listing.title}" has been created.')
+            return redirect("vendor_listings")
+    else:
+        form = ListingForm()
+    return render(request, "vendors/listing_edit.html", {"form": form, "listing": None})
+
 
 @vendor_required
 def listing_edit(request, pk):

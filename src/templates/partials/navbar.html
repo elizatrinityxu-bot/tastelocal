@@ -37,10 +37,12 @@
         </li>
         {% if user.is_authenticated %}
           {% if user.role == 'VENDOR' and not user.is_staff %}
+            {% if has_tourist_activity %}
             <li class="nav-item">
               <a class="nav-link {% if request.resolver_match.url_name == 'tourist_dashboard' %}active{% endif %}"
                  href="{% url 'tourist_dashboard' %}">Tourist View</a>
             </li>
+            {% endif %}
             <li class="nav-item">
               <a class="nav-link {% if request.resolver_match.url_name == 'vendor_dashboard' %}active{% endif %}"
                  href="{% url 'vendor_dashboard' %}">Vendor Dashboard</a>
