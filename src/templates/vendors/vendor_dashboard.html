@@ -10,9 +10,11 @@
 
 <div class="dashboard-header">
   <span class="dashboard-mode-label">Viewing vendor activity</span>
+  {% if has_tourist_activity %}
   <a href="{% url 'tourist_dashboard' %}" class="dashboard-switch-btn">
     Switch to Tourist View &#9992;
   </a>
+  {% endif %}
 </div>
 
 <div class="dashboard-section">

@@ -50,6 +50,12 @@ def tourist_dashboard(request):
     review_count = Review.objects.filter(tourist=user).count()
     itinerary_count = Itinerary.objects.filter(tourist=user).count()
     wishlist_count = WishlistItem.objects.filter(user=user).count()
+
+    # Approved vendors with no tourist activity at all go back to vendor dashboard.
+    has_tourist_activity = booking_count > 0 or review_count > 0 or itinerary_count > 0
+    if is_approved_vendor and not has_tourist_activity:
+        return redirect("vendor_dashboard")
+
     recent_reviews = (
         Review.objects.filter(tourist=user)
         .select_related("listing", "listing__vendor")

@@ -43,17 +43,25 @@ def _haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 @vendor_required
 def vendor_dashboard(request):
     from bookings.models import Booking
+    from itinerary.models import Itinerary
     from reviews.models import Review
 
     vendor = request.user.vendor_profile
     booking_count = Booking.objects.filter(listing__vendor=vendor).count()
     listing_count = vendor.listings.count()
     review_count = Review.objects.filter(listing__vendor=vendor, is_approved=True).count()
+
+    tourist_booking_count = Booking.objects.filter(tourist=request.user).count()
+    tourist_review_count = Review.objects.filter(tourist=request.user).count()
+    tourist_itinerary_count = Itinerary.objects.filter(tourist=request.user).count()
+    has_tourist_activity = tourist_booking_count > 0 or tourist_review_count > 0 or tourist_itinerary_count > 0
+
     return render(request, "vendors/vendor_dashboard.html", {
         "vendor": vendor,
         "booking_count": booking_count,
         "listing_count": listing_count,
         "review_count": review_count,
+        "has_tourist_activity": has_tourist_activity,
     })
 
 
